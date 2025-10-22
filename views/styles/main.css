@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@source "../**/*.go";
+
+@theme {
+	--font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+	--font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@import "./basecoat.css";

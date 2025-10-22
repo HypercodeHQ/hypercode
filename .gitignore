@@ -1,0 +1,6 @@
+bin/
+public/assets/styles.css
+tmp/
+*.db
+build-errors.log
+node_modules/

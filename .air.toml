@@ -1,0 +1,16 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  bin = "./tmp/main"
+  cmd = "go build -o ./tmp/main ./cmd/server"
+  delay = 0
+  exclude_dir = ["tmp", "vendor", "node_modules"]
+  exclude_regex = ["_test.go"]
+  include_ext = ["go", "html", "css"]
+  pre_cmd = ["bun x @tailwindcss/cli -i ./views/styles/main.css -o ./public/assets/styles.css --minify"]
+  kill_delay = "500ms"
+  send_interrupt = true
+
+[screen]
+  clear_on_rebuild = false
