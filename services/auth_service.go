@@ -104,7 +104,7 @@ func (s *authService) SetUserCookie(w http.ResponseWriter, userID int64) {
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode,
 		MaxAge:   86400 * 365,
 	})
 }
