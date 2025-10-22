@@ -242,3 +242,7 @@ func DataSide(value string) html.Node {
 func DataPopover(value string) html.Node {
 	return Attribute{Key: "data-popover", Value: value}
 }
+
+func Crossorigin(value string) html.Node {
+	return Attribute{Key: "crossorigin", Value: value}
+}

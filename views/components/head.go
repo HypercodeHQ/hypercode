@@ -20,10 +20,12 @@ func Head(title string) html.Node {
 		html.Link(
 			attr.Rel("preconnect"),
 			attr.Href("https://fonts.bunny.net"),
+			attr.Crossorigin("anonymous"),
 		),
 		html.Link(
 			attr.Rel("stylesheet"),
 			attr.Href("https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600,700|ibm-plex-mono:400,500,600,700"),
+			attr.Crossorigin("anonymous"),
 		),
 		html.Link(
 			attr.Rel("preload"),
