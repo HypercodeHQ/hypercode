@@ -13,8 +13,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/hyperstitieux/hypercode/database/models"
-	"github.com/hyperstitieux/hypercode/database/repositories"
+	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/database/repositories"
 )
 
 const (

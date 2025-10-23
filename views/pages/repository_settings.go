@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/hyperstitieux/hypercode/database/models"
-	"github.com/hyperstitieux/hypercode/html"
-	"github.com/hyperstitieux/hypercode/html/attr"
-	"github.com/hyperstitieux/hypercode/views/components/layouts"
-	"github.com/hyperstitieux/hypercode/views/components/ui"
+	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/html"
+	"github.com/hypercodehq/hypercode/html/attr"
+	"github.com/hypercodehq/hypercode/views/components/layouts"
+	"github.com/hypercodehq/hypercode/views/components/ui"
 )
 
 type CollaboratorData struct {
@@ -232,10 +232,10 @@ func RepositorySettings(r *http.Request, data *RepositorySettingsData) html.Node
 										html.Element("span",
 											attr.Class("text-xs text-muted-foreground flex items-center gap-1"),
 											getRoleIcon(collab.Contributor.Role),
-										html.Element("span",
-											attr.Class("capitalize"),
-											html.Text(collab.Contributor.Role+" access"),
-										),
+											html.Element("span",
+												attr.Class("capitalize"),
+												html.Text(collab.Contributor.Role+" access"),
+											),
 										),
 									),
 								),

@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/hyperstitieux/hypercode/services"
+	"github.com/hypercodehq/hypercode/services"
 )
 
 type SignOutController interface {

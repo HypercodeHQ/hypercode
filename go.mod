@@ -1,4 +1,4 @@
-module github.com/hyperstitieux/hypercode
+module github.com/hypercodehq/hypercode
 
 go 1.25.0
 

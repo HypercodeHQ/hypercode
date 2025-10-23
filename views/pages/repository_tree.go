@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/hyperstitieux/hypercode/database/models"
-	"github.com/hyperstitieux/hypercode/html"
-	"github.com/hyperstitieux/hypercode/html/attr"
-	"github.com/hyperstitieux/hypercode/services"
-	"github.com/hyperstitieux/hypercode/views/components/layouts"
-	"github.com/hyperstitieux/hypercode/views/components/ui"
+	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/html"
+	"github.com/hypercodehq/hypercode/html/attr"
+	"github.com/hypercodehq/hypercode/services"
+	"github.com/hypercodehq/hypercode/views/components/layouts"
+	"github.com/hypercodehq/hypercode/views/components/ui"
 )
 
 type RepositoryTreeData struct {

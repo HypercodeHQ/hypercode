@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/hyperstitieux/hypercode/database/models"
-	"github.com/hyperstitieux/hypercode/html"
-	"github.com/hyperstitieux/hypercode/html/attr"
-	"github.com/hyperstitieux/hypercode/views/components/layouts"
-	"github.com/hyperstitieux/hypercode/views/components/ui"
+	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/html"
+	"github.com/hypercodehq/hypercode/html/attr"
+	"github.com/hypercodehq/hypercode/views/components/layouts"
+	"github.com/hypercodehq/hypercode/views/components/ui"
 )
 
 type SettingsData struct {
@@ -166,101 +166,101 @@ func Settings(r *http.Request, data *SettingsData) html.Node {
 			// Access Tokens Card
 			html.Div(
 				attr.Id("access-tokens"),
-			ui.Card(ui.CardProps{
-				Title:       "Access Tokens",
-				Description: "Personal access tokens can be used as passwords for Git operations",
-				Content: html.Div(
-					attr.Class("space-y-4"),
-					html.If(data.AccessTokenSuccess != "", html.Div(
-						attr.Class("p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-sm"),
-						html.Text(data.AccessTokenSuccess),
-					)),
-					html.If(data.AccessTokenError != "", html.Div(
-						attr.Class("p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 text-sm"),
-						html.Text(data.AccessTokenError),
-					)),
-					html.If(data.NewAccessToken != "", html.Div(
-						attr.Class("p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800"),
-						html.Div(
-							attr.Class("flex items-start gap-3"),
+				ui.Card(ui.CardProps{
+					Title:       "Access Tokens",
+					Description: "Personal access tokens can be used as passwords for Git operations",
+					Content: html.Div(
+						attr.Class("space-y-4"),
+						html.If(data.AccessTokenSuccess != "", html.Div(
+							attr.Class("p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-sm"),
+							html.Text(data.AccessTokenSuccess),
+						)),
+						html.If(data.AccessTokenError != "", html.Div(
+							attr.Class("p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 text-sm"),
+							html.Text(data.AccessTokenError),
+						)),
+						html.If(data.NewAccessToken != "", html.Div(
+							attr.Class("p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800"),
 							html.Div(
-								attr.Class("flex-shrink-0 mt-0.5"),
-								ui.SVGIcon(ui.IconAlertCircle, "text-yellow-600 dark:text-yellow-400"),
-							),
-							html.Div(
-								attr.Class("flex-1 space-y-3"),
-								html.P(
-									attr.Class("text-sm font-medium text-yellow-800 dark:text-yellow-200"),
-									html.Text("Make sure to copy your access token now. You won't be able to see it again!"),
+								attr.Class("flex items-start gap-3"),
+								html.Div(
+									attr.Class("flex-shrink-0 mt-0.5"),
+									ui.SVGIcon(ui.IconAlertCircle, "text-yellow-600 dark:text-yellow-400"),
 								),
 								html.Div(
-									attr.Class("space-y-2"),
-									html.Label(
-										attr.For("new-token-value"),
-										attr.Class("label block"),
-										html.Text("Your New Access Token"),
+									attr.Class("flex-1 space-y-3"),
+									html.P(
+										attr.Class("text-sm font-medium text-yellow-800 dark:text-yellow-200"),
+										html.Text("Make sure to copy your access token now. You won't be able to see it again!"),
 									),
 									html.Div(
-										attr.Class("flex gap-2"),
-										html.Input(
-											attr.Type("text"),
-											attr.Readonly(),
-											attr.Value(data.NewAccessToken),
-											attr.Id("new-token-value"),
-											attr.Class("input font-mono text-sm flex-1"),
+										attr.Class("space-y-2"),
+										html.Label(
+											attr.For("new-token-value"),
+											attr.Class("label block"),
+											html.Text("Your New Access Token"),
 										),
-										html.Element("button",
-											attr.Type("button"),
-											attr.Onclick("copyNewToken()"),
-											attr.Id("copy-token-btn"),
-											attr.Class("btn-icon-outline cursor-pointer"),
-											attr.DataTooltip("Copy to clipboard"),
-											attr.DataSide("top"),
-											ui.SVGIcon(ui.IconCopy, "size-4"),
-											ui.SVGIcon(ui.IconCheck, "size-4 hidden"),
+										html.Div(
+											attr.Class("flex gap-2"),
+											html.Input(
+												attr.Type("text"),
+												attr.Readonly(),
+												attr.Value(data.NewAccessToken),
+												attr.Id("new-token-value"),
+												attr.Class("input font-mono text-sm flex-1"),
+											),
+											html.Element("button",
+												attr.Type("button"),
+												attr.Onclick("copyNewToken()"),
+												attr.Id("copy-token-btn"),
+												attr.Class("btn-icon-outline cursor-pointer"),
+												attr.DataTooltip("Copy to clipboard"),
+												attr.DataSide("top"),
+												ui.SVGIcon(ui.IconCopy, "size-4"),
+												ui.SVGIcon(ui.IconCheck, "size-4 hidden"),
+											),
 										),
 									),
 								),
 							),
-						),
-					)),
-					html.Form(
-						attr.Method("POST"),
-						attr.Action("/settings/access-tokens"),
-						attr.Class("space-y-4"),
-						ui.FormField(ui.FormFieldProps{
-							Label:       "Token Name",
-							Id:          "token_name",
-							Name:        "name",
-							Type:        "text",
-							Placeholder: "My Token",
-							Icon:        ui.IconLock,
-							Required:    true,
-						}),
-						html.Div(
-							attr.Class("flex justify-end"),
-							ui.Button(
-								ui.ButtonProps{
-									Variant: ui.ButtonPrimary,
-									Type:    "submit",
-								},
-								html.Text("Generate Token"),
+						)),
+						html.Form(
+							attr.Method("POST"),
+							attr.Action("/settings/access-tokens"),
+							attr.Class("space-y-4"),
+							ui.FormField(ui.FormFieldProps{
+								Label:       "Token Name",
+								Id:          "token_name",
+								Name:        "name",
+								Type:        "text",
+								Placeholder: "My Token",
+								Icon:        ui.IconLock,
+								Required:    true,
+							}),
+							html.Div(
+								attr.Class("flex justify-end"),
+								ui.Button(
+									ui.ButtonProps{
+										Variant: ui.ButtonPrimary,
+										Type:    "submit",
+									},
+									html.Text("Generate Token"),
+								),
 							),
 						),
+						html.If(len(data.AccessTokens) > 0, html.Div(
+							attr.Class("space-y-2 mt-6"),
+							html.H3(
+								attr.Class("text-sm font-semibold text-foreground mb-3"),
+								html.Text("Active Tokens"),
+							),
+							html.Div(
+								attr.Class("space-y-2"),
+								html.Group(accessTokenList(data.AccessTokens)...),
+							),
+						)),
 					),
-					html.If(len(data.AccessTokens) > 0, html.Div(
-						attr.Class("space-y-2 mt-6"),
-						html.H3(
-							attr.Class("text-sm font-semibold text-foreground mb-3"),
-							html.Text("Active Tokens"),
-						),
-						html.Div(
-							attr.Class("space-y-2"),
-							html.Group(accessTokenList(data.AccessTokens)...),
-						),
-					)),
-				),
-			}),
+				}),
 			),
 
 			// JavaScript for username change confirmation and token copying

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hyperstitieux/hypercode/commands"
+	"github.com/hypercodehq/hypercode/commands"
 	"github.com/urfave/cli/v3"
 )
 

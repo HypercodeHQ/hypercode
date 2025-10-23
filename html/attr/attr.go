@@ -3,7 +3,7 @@ package attr
 import (
 	"net/http"
 
-	"github.com/hyperstitieux/hypercode/html"
+	"github.com/hypercodehq/hypercode/html"
 )
 
 type Attribute struct {

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hyperstitieux/hypercode/database/models"
-	"github.com/hyperstitieux/hypercode/html"
-	"github.com/hyperstitieux/hypercode/html/attr"
-	"github.com/hyperstitieux/hypercode/views/components/ui"
+	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/html"
+	"github.com/hypercodehq/hypercode/html/attr"
+	"github.com/hypercodehq/hypercode/views/components/ui"
 )
 
 type HeaderData struct {
@@ -88,7 +88,7 @@ func socialLinks() html.Node {
 			ui.SVGIcon(ui.IconBluesky, ""),
 		),
 		html.A(
-			attr.Href("https://github.com/hyperstitieux/hypercode"),
+			attr.Href("https://github.com/hypercodehq/hypercode"),
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Star us on GitHub"),
@@ -244,7 +244,7 @@ func userAccountDropdown(user *models.User) html.Node {
 						html.Text("Follow us on Bluesky"),
 					),
 					html.A(
-						attr.Href("https://github.com/hyperstitieux/hypercode"),
+						attr.Href("https://github.com/hypercodehq/hypercode"),
 						attr.Target("_blank"),
 						attr.Rel("noopener noreferrer"),
 						attr.Role("menuitem"),

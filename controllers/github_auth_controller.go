@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/hyperstitieux/hypercode/database/repositories"
-	"github.com/hyperstitieux/hypercode/httperror"
-	"github.com/hyperstitieux/hypercode/services"
+	"github.com/hypercodehq/hypercode/database/repositories"
+	"github.com/hypercodehq/hypercode/httperror"
+	"github.com/hypercodehq/hypercode/services"
 )
 
 type GitHubAuthController interface {
@@ -18,9 +18,9 @@ type GitHubAuthController interface {
 }
 
 type githubAuthController struct {
-	users          repositories.UsersRepository
-	authService    services.AuthService
-	githubOAuth    services.GitHubOAuthService
+	users       repositories.UsersRepository
+	authService services.AuthService
+	githubOAuth services.GitHubOAuthService
 }
 
 func NewGitHubAuthController(

@@ -3,7 +3,7 @@ package validator
 import (
 	"net/http"
 
-	"github.com/hyperstitieux/hypercode/validator/rule"
+	"github.com/hypercodehq/hypercode/validator/rule"
 )
 
 type Validator interface {

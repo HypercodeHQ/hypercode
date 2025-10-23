@@ -3,12 +3,12 @@ package layouts
 import (
 	"net/http"
 
-	"github.com/hyperstitieux/hypercode/database/models"
-	"github.com/hyperstitieux/hypercode/html"
-	"github.com/hyperstitieux/hypercode/html/attr"
-	"github.com/hyperstitieux/hypercode/middleware"
-	"github.com/hyperstitieux/hypercode/services"
-	"github.com/hyperstitieux/hypercode/views/components"
+	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/html"
+	"github.com/hypercodehq/hypercode/html/attr"
+	"github.com/hypercodehq/hypercode/middleware"
+	"github.com/hypercodehq/hypercode/services"
+	"github.com/hypercodehq/hypercode/views/components"
 )
 
 type profileLayout struct {

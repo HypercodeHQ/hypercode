@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/hyperstitieux/hypercode/database/repositories"
+	"github.com/hypercodehq/hypercode/database/repositories"
 )
 
 const (

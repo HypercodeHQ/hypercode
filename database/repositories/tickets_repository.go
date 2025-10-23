@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/hyperstitieux/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/database/models"
 )
 
 type TicketsRepository interface {

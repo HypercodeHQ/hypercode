@@ -1,10 +1,10 @@
 package components
 
 import (
-	"github.com/hyperstitieux/hypercode/database/models"
-	"github.com/hyperstitieux/hypercode/html"
-	"github.com/hyperstitieux/hypercode/html/attr"
-	"github.com/hyperstitieux/hypercode/views/components/ui"
+	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/html"
+	"github.com/hypercodehq/hypercode/html/attr"
+	"github.com/hypercodehq/hypercode/views/components/ui"
 )
 
 type ProfileHeaderData struct {
@@ -63,7 +63,7 @@ func ProfileHeader(data *ProfileHeaderData) html.Node {
 					Username:     data.Username,
 					CurrentTab:   data.CurrentTab,
 					ShowSettings: data.ShowSettings,
-				IsOrg:        data.IsOrg,
+					IsOrg:        data.IsOrg,
 				}),
 			),
 		),

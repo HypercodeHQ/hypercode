@@ -11,10 +11,10 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/hyperstitieux/hypercode/database/models"
-	"github.com/hyperstitieux/hypercode/database/repositories"
-	"github.com/hyperstitieux/hypercode/middleware"
-	"github.com/hyperstitieux/hypercode/services"
+	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/database/repositories"
+	"github.com/hypercodehq/hypercode/middleware"
+	"github.com/hypercodehq/hypercode/services"
 )
 
 type GitController interface {
