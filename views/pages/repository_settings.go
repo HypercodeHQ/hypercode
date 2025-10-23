@@ -52,6 +52,7 @@ func RepositorySettings(r *http.Request, data *RepositorySettingsData) html.Node
 			ShowSettings:  true,
 			StarCount:     0,
 			HasStarred:    false,
+			DefaultBranch: data.Repository.DefaultBranch,
 		},
 		html.Main(
 			attr.Class("w-full mx-auto max-w-6xl space-y-6 py-8 px-4"),

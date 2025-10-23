@@ -199,6 +199,17 @@ func Onclick(value string) html.Node {
 	return Attribute{Key: "onclick", Value: value}
 }
 
+func Onchange(value string) html.Node {
+	return Attribute{Key: "onchange", Value: value}
+}
+
+func Selected(value bool) html.Node {
+	if value {
+		return Attribute{Key: "selected", Value: ""}
+	}
+	return nil
+}
+
 func Target(value string) html.Node {
 	return Attribute{Key: "target", Value: value}
 }

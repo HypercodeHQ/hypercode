@@ -18,6 +18,7 @@ type RepositoryHeaderData struct {
 	ShowSettings  bool
 	StarCount     int64
 	HasStarred    bool
+	DefaultBranch string
 }
 
 func RepositoryHeader(data *RepositoryHeaderData) html.Node {
@@ -76,12 +77,13 @@ func RepositoryHeader(data *RepositoryHeaderData) html.Node {
 			),
 		),
 		html.Div(
-			attr.Class("bg-background border-b px-4 pt-2 flex flex-wrap justify-between items-center gap-4"),
+			attr.Class("bg-background border-b px-4 flex flex-wrap justify-between items-center gap-4"),
 			ui.RepositoryTabs(ui.RepositoryTabsProps{
 				OwnerUsername: data.OwnerUsername,
 				RepoName:      data.RepoName,
 				CurrentTab:    data.CurrentTab,
 				ShowSettings:  data.ShowSettings,
+				DefaultBranch: data.DefaultBranch,
 			}),
 			html.If(
 				data.User != nil,

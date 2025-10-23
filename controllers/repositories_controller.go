@@ -20,6 +20,7 @@ type RepositoriesController interface {
 	Create(w http.ResponseWriter, r *http.Request) error
 	Store(w http.ResponseWriter, r *http.Request) error
 	Show(w http.ResponseWriter, r *http.Request) error
+	Tree(w http.ResponseWriter, r *http.Request) error
 	Settings(w http.ResponseWriter, r *http.Request) error
 	UpdateSettings(w http.ResponseWriter, r *http.Request) error
 	Delete(w http.ResponseWriter, r *http.Request) error
@@ -34,6 +35,7 @@ type repositoriesController struct {
 	stars         repositories.StarsRepository
 	orgs          repositories.OrganizationsRepository
 	authService   services.AuthService
+	gitService    services.GitService
 	reposBasePath string
 }
 
@@ -44,6 +46,7 @@ func NewRepositoriesController(
 	stars repositories.StarsRepository,
 	orgs repositories.OrganizationsRepository,
 	authService services.AuthService,
+	gitService services.GitService,
 	reposBasePath string,
 ) RepositoriesController {
 	return &repositoriesController{
@@ -53,6 +56,7 @@ func NewRepositoriesController(
 		stars:         stars,
 		orgs:          orgs,
 		authService:   authService,
+		gitService:    gitService,
 		reposBasePath: reposBasePath,
 	}
 }
@@ -294,6 +298,151 @@ func (c *repositoriesController) Show(w http.ResponseWriter, r *http.Request) er
 	}
 
 	return pages.ShowRepository(r, data).Render(w, r)
+}
+
+func (c *repositoriesController) Tree(w http.ResponseWriter, r *http.Request) error {
+	owner := chi.URLParam(r, "owner")
+	repoName := chi.URLParam(r, "repo")
+	ref := chi.URLParam(r, "ref")
+	treePath := chi.URLParam(r, "*")
+
+	repo, err := c.repos.FindByOwnerAndName(owner, repoName)
+	if err != nil {
+		return httperror.NotFound("repository not found")
+	}
+
+	if repo == nil {
+		return httperror.NotFound("repository not found")
+	}
+
+	// Check visibility and auth
+	if repo.Visibility == "private" {
+		user, err := c.authService.GetUserFromCookie(r)
+		if err != nil || user == nil {
+			return httperror.Unauthorized("authentication required")
+		}
+		if repo.OwnerUserID != nil && *repo.OwnerUserID != user.ID {
+			// Check if user is a contributor
+			contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, user.ID)
+			if err != nil || contributor == nil {
+				return httperror.Forbidden("access denied")
+			}
+		}
+	}
+
+	user, _ := c.authService.GetUserFromCookie(r)
+
+	// Determine if user can manage the repository
+	canManage := false
+	if user != nil && repo.OwnerUserID != nil && *repo.OwnerUserID == user.ID {
+		canManage = true
+	} else if user != nil {
+		contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, user.ID)
+		if err == nil && contributor != nil && contributor.Role == "admin" {
+			canManage = true
+		}
+	}
+
+	// Get star count
+	starCount, err := c.stars.CountByRepository(repo.ID)
+	if err != nil {
+		slog.Error("failed to count stars", "error", err)
+		starCount = 0
+	}
+
+	// Check if user has starred
+	hasStarred := false
+	if user != nil {
+		star, err := c.stars.FindByUserAndRepository(repo.ID, user.ID)
+		if err != nil {
+			slog.Error("failed to check if user starred", "error", err)
+		}
+		if star != nil {
+			hasStarred = true
+		}
+	}
+
+	// Determine repository path on disk
+	var ownerIDForPath string
+	if repo.OwnerUserID != nil {
+		ownerIDForPath = fmt.Sprintf("%d", *repo.OwnerUserID)
+	} else if repo.OwnerOrgID != nil {
+		ownerIDForPath = fmt.Sprintf("org_%d", *repo.OwnerOrgID)
+	}
+
+	repoPath := filepath.Join(c.reposBasePath, ownerIDForPath, fmt.Sprintf("%d", repo.ID))
+
+	// List branches
+	branches, err := c.gitService.ListBranches(repoPath)
+	if err != nil {
+		slog.Error("failed to list branches", "error", err)
+		branches = []string{}
+	}
+
+	// If no ref specified, use default branch
+	if ref == "" {
+		ref = repo.DefaultBranch
+		// If no branches exist, redirect will be handled by the view
+		if len(branches) == 0 {
+			// Empty repository
+			data := &pages.RepositoryTreeData{
+				User:          user,
+				Repository:    repo,
+				OwnerUsername: owner,
+				CanManage:     canManage,
+				StarCount:     starCount,
+				HasStarred:    hasStarred,
+				Branches:      []string{},
+				CurrentBranch: repo.DefaultBranch,
+				CurrentPath:   "",
+				Entries:       []services.TreeEntry{},
+				IsEmpty:       true,
+			}
+			return pages.RepositoryTree(r, data).Render(w, r)
+		}
+	}
+
+	// Validate that ref exists in branches
+	refExists := false
+	for _, branch := range branches {
+		if branch == ref {
+			refExists = true
+			break
+		}
+	}
+
+	if !refExists && len(branches) > 0 {
+		// Redirect to default branch
+		redirectPath := fmt.Sprintf("/%s/%s/tree/%s", owner, repoName, repo.DefaultBranch)
+		if treePath != "" {
+			redirectPath = fmt.Sprintf("/%s/%s/tree/%s/%s", owner, repoName, repo.DefaultBranch, treePath)
+		}
+		http.Redirect(w, r, redirectPath, http.StatusSeeOther)
+		return nil
+	}
+
+	// List tree contents
+	entries, err := c.gitService.ListTree(repoPath, ref, treePath)
+	if err != nil {
+		slog.Error("failed to list tree", "error", err, "ref", ref, "path", treePath)
+		entries = []services.TreeEntry{}
+	}
+
+	data := &pages.RepositoryTreeData{
+		User:          user,
+		Repository:    repo,
+		OwnerUsername: owner,
+		CanManage:     canManage,
+		StarCount:     starCount,
+		HasStarred:    hasStarred,
+		Branches:      branches,
+		CurrentBranch: ref,
+		CurrentPath:   treePath,
+		Entries:       entries,
+		IsEmpty:       len(branches) == 0,
+	}
+
+	return pages.RepositoryTree(r, data).Render(w, r)
 }
 
 func (c *repositoriesController) Settings(w http.ResponseWriter, r *http.Request) error {

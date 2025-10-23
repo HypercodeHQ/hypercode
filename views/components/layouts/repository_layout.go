@@ -22,6 +22,7 @@ type repositoryLayout struct {
 	showSettings  bool
 	starCount     int64
 	hasStarred    bool
+	defaultBranch string
 }
 
 type RepositoryLayoutOptions struct {
@@ -32,6 +33,7 @@ type RepositoryLayoutOptions struct {
 	ShowSettings  bool
 	StarCount     int64
 	HasStarred    bool
+	DefaultBranch string
 }
 
 func Repository(r *http.Request, title string, opts RepositoryLayoutOptions, children ...html.Node) repositoryLayout {
@@ -46,6 +48,7 @@ func Repository(r *http.Request, title string, opts RepositoryLayoutOptions, chi
 		showSettings:  opts.ShowSettings,
 		starCount:     opts.StarCount,
 		hasStarred:    opts.HasStarred,
+		defaultBranch: opts.DefaultBranch,
 	}
 }
 
@@ -61,6 +64,7 @@ func (b repositoryLayout) Render(w http.ResponseWriter, r *http.Request) error {
 			ShowSettings:  b.showSettings,
 			StarCount:     b.starCount,
 			HasStarred:    b.hasStarred,
+			DefaultBranch: b.defaultBranch,
 		}),
 	}
 	bodyChildren = append(bodyChildren, b.children...)

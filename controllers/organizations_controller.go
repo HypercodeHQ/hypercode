@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/hyperstitieux/hypercode/database/models"
 	"github.com/hyperstitieux/hypercode/database/repositories"
 	"github.com/hyperstitieux/hypercode/httperror"
 	custommiddleware "github.com/hyperstitieux/hypercode/middleware"
@@ -25,12 +25,16 @@ type OrganizationsController interface {
 
 type organizationsController struct {
 	orgs        repositories.OrganizationsRepository
+	users       repositories.UsersRepository
+	repos       repositories.RepositoriesRepository
 	authService services.AuthService
 }
 
-func NewOrganizationsController(orgs repositories.OrganizationsRepository, authService services.AuthService) OrganizationsController {
+func NewOrganizationsController(orgs repositories.OrganizationsRepository, users repositories.UsersRepository, repos repositories.RepositoriesRepository, authService services.AuthService) OrganizationsController {
 	return &organizationsController{
 		orgs:        orgs,
+		users:       users,
+		repos:       repos,
 		authService: authService,
 	}
 }
@@ -117,7 +121,6 @@ func (c *organizationsController) Store(w http.ResponseWriter, r *http.Request) 
 }
 
 func (c *organizationsController) Show(w http.ResponseWriter, r *http.Request) error {
-	owner := chi.URLParam(r, "owner")
 	ownerType, ok := custommiddleware.GetOwnerType(r.Context())
 	if !ok {
 		return httperror.NotFound("owner not found")
@@ -125,11 +128,35 @@ func (c *organizationsController) Show(w http.ResponseWriter, r *http.Request) e
 
 	ownerID, _ := custommiddleware.GetOwnerID(r.Context())
 
-	w.Write([]byte("<h1>Owner: " + owner + "</h1>"))
-	w.Write([]byte("<p>Type: " + string(ownerType) + "</p>"))
-	w.Write([]byte("<p>ID: " + string(rune(ownerID+'0')) + "</p>"))
+	currentUser := custommiddleware.GetUserFromContext(r)
 
-	return nil
+	// Handle user profile
+	if ownerType == custommiddleware.OwnerTypeUser {
+		profileUser, err := c.users.FindByID(ownerID)
+		if err != nil {
+			return httperror.NotFound("user not found")
+		}
+
+		userRepos, err := c.repos.FindAllByUser(ownerID)
+		if err != nil {
+			slog.Error("failed to fetch user repositories", "error", err)
+			userRepos = []*models.Repository{}
+		}
+
+		return pages.UserProfile(r, &pages.UserProfileData{
+			User:         currentUser,
+			ProfileUser:  profileUser,
+			Repositories: userRepos,
+		}).Render(w, r)
+	}
+
+	// Handle organization profile (TODO: implement organization profile page)
+	if ownerType == custommiddleware.OwnerTypeOrg {
+		http.Error(w, "Organization profiles not yet implemented", http.StatusNotImplemented)
+		return nil
+	}
+
+	return httperror.NotFound("owner not found")
 }
 
 func (c *organizationsController) Settings(w http.ResponseWriter, r *http.Request) error {

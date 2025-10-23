@@ -37,6 +37,7 @@ func main() {
 
 	authService := services.NewAuthService(users, cfg.SigningSecret)
 	flashService := services.NewFlashService()
+	gitService := services.NewGitService(cfg.ReposBasePath)
 
 	homeController := controllers.NewHomeController(repos, users, orgs)
 	signUpController := controllers.NewSignUpController(users, authService, flashService)
@@ -45,8 +46,8 @@ func main() {
 	settingsController := controllers.NewSettingsController(users, authService)
 	forgotPasswordController := controllers.NewForgotPasswordController()
 	resetPasswordController := controllers.NewResetPasswordController()
-	orgsController := controllers.NewOrganizationsController(orgs, authService)
-	reposController := controllers.NewRepositoriesController(repos, users, contributors, stars, orgs, authService, cfg.ReposBasePath)
+	orgsController := controllers.NewOrganizationsController(orgs, users, repos, authService)
+	reposController := controllers.NewRepositoriesController(repos, users, contributors, stars, orgs, authService, gitService, cfg.ReposBasePath)
 	gitController := controllers.NewGitController(users, orgs, repos, contributors, authService, cfg.ReposBasePath)
 
 	r := chi.NewRouter()
@@ -101,6 +102,11 @@ func main() {
 			r.Get("/settings", wrapHandler(reposController.Settings))
 			r.Post("/settings/general", wrapHandler(reposController.UpdateSettings))
 			r.Post("/settings/delete", wrapHandler(reposController.Delete))
+
+			// Tree routes - handle both with and without ref
+			r.Get("/tree", wrapHandler(reposController.Tree))
+			r.Get("/tree/{ref}", wrapHandler(reposController.Tree))
+			r.Get("/tree/{ref}/*", wrapHandler(reposController.Tree))
 
 			r.Get("/info/refs", wrapHandler(gitController.InfoRefs))
 			r.Post("/git-upload-pack", wrapHandler(gitController.UploadPack))

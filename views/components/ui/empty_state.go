@@ -29,7 +29,7 @@ func EmptyState(props EmptyStateProps) html.Node {
 	}
 
 	return html.Div(
-		attr.Class("flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-lg border-dashed p-6 text-center md:p-12 min-h-[calc(100vh-61px-4rem)]"),
+		attr.Class("flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-lg border-dashed p-6 text-center md:p-12"),
 		html.Div(
 			attr.Class("flex max-w-sm flex-col items-center gap-2 text-center"),
 			html.Div(

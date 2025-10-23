@@ -36,6 +36,7 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 			ShowSettings:  data.CanManage,
 			StarCount:     data.StarCount,
 			HasStarred:    data.HasStarred,
+			DefaultBranch: data.Repository.DefaultBranch,
 		},
 		html.Main(
 			attr.Class("container mx-auto px-4 py-8 max-w-6xl"),

@@ -10,6 +10,7 @@ type RepositoryTabsProps struct {
 	RepoName      string
 	CurrentTab    string
 	ShowSettings  bool
+	DefaultBranch string
 }
 
 func RepositoryTabs(props RepositoryTabsProps) html.Node {
@@ -17,6 +18,7 @@ func RepositoryTabs(props RepositoryTabsProps) html.Node {
 		repositoryTab(
 			props.OwnerUsername,
 			props.RepoName,
+			props.DefaultBranch,
 			"overview",
 			props.CurrentTab,
 			IconLayoutGrid,
@@ -25,6 +27,7 @@ func RepositoryTabs(props RepositoryTabsProps) html.Node {
 		repositoryTab(
 			props.OwnerUsername,
 			props.RepoName,
+			props.DefaultBranch,
 			"tree",
 			props.CurrentTab,
 			IconCode,
@@ -36,6 +39,7 @@ func RepositoryTabs(props RepositoryTabsProps) html.Node {
 		tabs = append(tabs, repositoryTab(
 			props.OwnerUsername,
 			props.RepoName,
+			props.DefaultBranch,
 			"settings",
 			props.CurrentTab,
 			IconSettings,
@@ -49,9 +53,12 @@ func RepositoryTabs(props RepositoryTabsProps) html.Node {
 	)
 }
 
-func repositoryTab(ownerUsername, repoName, tab, currentTab string, icon Icon, label string) html.Node {
+func repositoryTab(ownerUsername, repoName, defaultBranch, tab, currentTab string, icon Icon, label string) html.Node {
 	href := "/" + ownerUsername + "/" + repoName
-	if tab != "overview" {
+	if tab == "tree" {
+		// For tree tab, link to /tree/<defaultBranch>
+		href += "/tree/" + defaultBranch
+	} else if tab != "overview" {
 		href += "/" + tab
 	}
 
@@ -65,7 +72,7 @@ func repositoryTab(ownerUsername, repoName, tab, currentTab string, icon Icon, l
 
 	return html.A(
 		attr.Href(href),
-		attr.Class("inline-flex pb-2 border-b-2 transition-colors "+borderClass(isActive)),
+		attr.Class("inline-flex mt-2 pb-2 border-b-2 transition-colors "+borderClass(isActive)),
 		html.Element("span",
 			attr.Class(spanClasses),
 			smallSVGIcon(icon, ""),
