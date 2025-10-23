@@ -197,6 +197,13 @@ func userAccountDropdown(user *models.User) html.Node {
 						attr.Role("separator"),
 					),
 					html.A(
+						attr.Href("/"+user.Username),
+						attr.Role("menuitem"),
+						attr.Class("cursor-pointer"),
+						ui.SVGIcon(ui.IconUser, ""),
+						html.Text("Profile"),
+					),
+					html.A(
 						attr.Href("/settings"),
 						attr.Role("menuitem"),
 						attr.Class("cursor-pointer"),
