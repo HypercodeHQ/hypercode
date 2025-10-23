@@ -55,7 +55,7 @@ func main() {
 	reposController := controllers.NewRepositoriesController(repos, users, contributors, stars, orgs, authService, gitService, cfg.ReposBasePath)
 	gitController := controllers.NewGitController(users, orgs, repos, contributors, accessTokens, authService, cfg.ReposBasePath)
 	exploreController := controllers.NewExploreController(repos, users, orgs, stars, authService)
-	ticketsController := controllers.NewTicketsController(tickets, repos, users, stars, authService)
+	ticketsController := controllers.NewTicketsController(tickets, repos, users, stars, contributors, authService)
 
 	r := chi.NewRouter()
 

@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/hyperstitieux/hypercode/database/models"
@@ -275,9 +276,15 @@ func getUserInitials(user *models.User) string {
 	return strings.ToUpper(string(user.Username[0]))
 }
 
-func MainHeader(data *HeaderData) html.Node {
-	return Header(data, html.A(
-		attr.Class("btn-ghost"),
+type MainHeaderData struct {
+	User  *models.User
+	Class string
+}
+
+func MainHeader(data *MainHeaderData) html.Node {
+	fmt.Println("there!", data.Class)
+	return Header(&HeaderData{User: data.User}, html.A(
+		attr.Class("btn-ghost "+data.Class),
 		attr.Href("/explore/repositories"),
 		html.Text("Explore"),
 	))

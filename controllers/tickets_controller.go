@@ -25,11 +25,12 @@ type TicketsController interface {
 }
 
 type ticketsController struct {
-	tickets     repositories.TicketsRepository
-	repos       repositories.RepositoriesRepository
-	users       repositories.UsersRepository
-	stars       repositories.StarsRepository
-	authService services.AuthService
+	tickets      repositories.TicketsRepository
+	repos        repositories.RepositoriesRepository
+	users        repositories.UsersRepository
+	stars        repositories.StarsRepository
+	contributors repositories.ContributorsRepository
+	authService  services.AuthService
 }
 
 func NewTicketsController(
@@ -37,14 +38,16 @@ func NewTicketsController(
 	repos repositories.RepositoriesRepository,
 	users repositories.UsersRepository,
 	stars repositories.StarsRepository,
+	contributors repositories.ContributorsRepository,
 	authService services.AuthService,
 ) TicketsController {
 	return &ticketsController{
-		tickets:     tickets,
-		repos:       repos,
-		users:       users,
-		stars:       stars,
-		authService: authService,
+		tickets:      tickets,
+		repos:        repos,
+		users:        users,
+		stars:        stars,
+		contributors: contributors,
+		authService:  authService,
 	}
 }
 
@@ -82,6 +85,12 @@ func (c *ticketsController) List(w http.ResponseWriter, r *http.Request) error {
 	if currentUser != nil {
 		if repo.OwnerUserID != nil && *repo.OwnerUserID == currentUser.ID {
 			canManage = true
+		} else {
+			// Check if user is an admin contributor
+			contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, currentUser.ID)
+			if err == nil && contributor != nil && contributor.Role == "admin" {
+				canManage = true
+			}
 		}
 	}
 
@@ -169,6 +178,12 @@ func (c *ticketsController) Show(w http.ResponseWriter, r *http.Request) error {
 	if currentUser != nil {
 		if repo.OwnerUserID != nil && *repo.OwnerUserID == currentUser.ID {
 			canManage = true
+		} else {
+			// Check if user is an admin contributor
+			contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, currentUser.ID)
+			if err == nil && contributor != nil && contributor.Role == "admin" {
+				canManage = true
+			}
 		}
 	}
 
@@ -221,6 +236,12 @@ func (c *ticketsController) New(w http.ResponseWriter, r *http.Request) error {
 	canManage := false
 	if repo.OwnerUserID != nil && *repo.OwnerUserID == currentUser.ID {
 		canManage = true
+	} else {
+		// Check if user is an admin contributor
+		contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, currentUser.ID)
+		if err == nil && contributor != nil && contributor.Role == "admin" {
+			canManage = true
+		}
 	}
 
 	// Get star info
@@ -279,6 +300,12 @@ func (c *ticketsController) Create(w http.ResponseWriter, r *http.Request) error
 		canManage := false
 		if repo.OwnerUserID != nil && *repo.OwnerUserID == currentUser.ID {
 			canManage = true
+		} else {
+			// Check if user is an admin contributor
+			contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, currentUser.ID)
+			if err == nil && contributor != nil && contributor.Role == "admin" {
+				canManage = true
+			}
 		}
 		starCount, _ := c.stars.CountByRepository(repo.ID)
 		star, _ := c.stars.FindByUserAndRepository(repo.ID, currentUser.ID)

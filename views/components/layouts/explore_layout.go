@@ -35,7 +35,12 @@ func Explore(r *http.Request, title string, opts ExploreLayoutOptions, children 
 func (b exploreLayout) Render(w http.ResponseWriter, r *http.Request) error {
 	bodyChildren := []html.Node{
 		attr.Class("bg-neutral-50 text-neutral-900"),
-		components.MainHeader(&components.HeaderData{User: b.user}),
+		// Add toaster container for toast notifications early in DOM
+		html.Div(
+			attr.Id("toaster"),
+			attr.Class("toaster"),
+		),
+		components.MainHeader(&components.MainHeaderData{User: b.user, Class: "!bg-accent"}),
 		html.Div(
 			attr.Class("bg-background border-b px-4 pt-2 flex flex-wrap items-center gap-4"),
 			ui.ExploreTabs(ui.ExploreTabsProps{
@@ -49,12 +54,6 @@ func (b exploreLayout) Render(w http.ResponseWriter, r *http.Request) error {
 	if flash != nil && flash.Type == services.FlashCelebration {
 		bodyChildren = append(bodyChildren, components.Celebration())
 	}
-
-	// Add toaster container for toast notifications
-	bodyChildren = append(bodyChildren, html.Div(
-		attr.Id("toaster"),
-		attr.Class("toaster"),
-	))
 
 	doc := html.Document(
 		html.HTML(

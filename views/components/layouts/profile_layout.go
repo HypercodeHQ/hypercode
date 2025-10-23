@@ -46,6 +46,11 @@ func Profile(r *http.Request, title string, opts ProfileLayoutOptions, children 
 func (b profileLayout) Render(w http.ResponseWriter, r *http.Request) error {
 	bodyChildren := []html.Node{
 		attr.Class("bg-neutral-50 text-neutral-900"),
+		// Add toaster container for toast notifications early in DOM
+		html.Div(
+			attr.Id("toaster"),
+			attr.Class("toaster"),
+		),
 		components.ProfileHeader(&components.ProfileHeaderData{
 			User:         b.user,
 			Username:     b.username,
@@ -61,12 +66,6 @@ func (b profileLayout) Render(w http.ResponseWriter, r *http.Request) error {
 	if flash != nil && flash.Type == services.FlashCelebration {
 		bodyChildren = append(bodyChildren, components.Celebration())
 	}
-
-	// Add toaster container for toast notifications
-	bodyChildren = append(bodyChildren, html.Div(
-		attr.Id("toaster"),
-		attr.Class("toaster"),
-	))
 
 	doc := html.Document(
 		html.HTML(

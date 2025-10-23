@@ -68,7 +68,7 @@ func ExploreRepositories(r *http.Request, data *ExploreRepositoriesData) html.No
 				attr.Class("space-y-6"),
 				html.H1(
 					attr.Class("text-2xl font-semibold"),
-					html.Text("Explore"),
+					html.Text("Explore repositories"),
 				),
 				content,
 			),
@@ -117,7 +117,7 @@ func ExploreUsers(r *http.Request, data *ExploreUsersData) html.Node {
 				attr.Class("space-y-6"),
 				html.H1(
 					attr.Class("text-2xl font-semibold"),
-					html.Text("Explore"),
+					html.Text("Explore users"),
 				),
 				content,
 			),
@@ -166,7 +166,7 @@ func ExploreOrganizations(r *http.Request, data *ExploreOrganizationsData) html.
 				attr.Class("space-y-6"),
 				html.H1(
 					attr.Class("text-2xl font-semibold"),
-					html.Text("Explore"),
+					html.Text("Explore organizations"),
 				),
 				content,
 			),

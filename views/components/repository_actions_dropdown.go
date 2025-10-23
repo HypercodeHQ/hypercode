@@ -225,17 +225,22 @@ if (typeof copyCloneURL === 'undefined') {
 				checkIcn.classList.add('hidden');
 			}, 2000);
 
-			// Show toast notification
-			document.dispatchEvent(new CustomEvent('basecoat:toast', {
-				detail: {
-					config: {
-						category: 'success',
-						title: 'Clone command copied!',
-						description: 'The clone command has been copied to your clipboard.',
-						duration: 2000
+			// Show toast notification - ensure toaster exists
+			const toaster = document.getElementById('toaster');
+			if (toaster) {
+				document.dispatchEvent(new CustomEvent('basecoat:toast', {
+					detail: {
+						config: {
+							category: 'success',
+							title: 'Clone command copied!',
+							description: 'The clone command has been copied to your clipboard.',
+							duration: 2000
+						}
 					}
-				}
-			}));
+				}));
+			} else {
+				console.error('Toaster container not found');
+			}
 		}
 	};
 }
@@ -251,17 +256,22 @@ if (typeof showCopySuccess === 'undefined') {
 			}, 2000);
 		}
 
-		// Show toast notification
-		document.dispatchEvent(new CustomEvent('basecoat:toast', {
-			detail: {
-				config: {
-					category: 'success',
-					title: 'Link copied!',
-					description: 'The link has been copied to your clipboard.',
-					duration: 2000
+		// Show toast notification - ensure toaster exists
+		const toaster = document.getElementById('toaster');
+		if (toaster) {
+			document.dispatchEvent(new CustomEvent('basecoat:toast', {
+				detail: {
+					config: {
+						category: 'success',
+						title: 'Link copied!',
+						description: 'The link has been copied to your clipboard.',
+						duration: 2000
+					}
 				}
-			}
-		}));
+			}));
+		} else {
+			console.error('Toaster container not found');
+		}
 
 		// Close the share dropdown
 		const shareTrigger = document.getElementById('share-trigger');

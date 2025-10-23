@@ -28,7 +28,12 @@ func Main(r *http.Request, title string, children ...html.Node) mainLayout {
 func (b mainLayout) Render(w http.ResponseWriter, r *http.Request) error {
 	bodyChildren := []html.Node{
 		attr.Class("bg-neutral-50 text-neutral-900"),
-		components.MainHeader(&components.HeaderData{User: b.user}),
+		// Add toaster container for toast notifications early in DOM
+		html.Div(
+			attr.Id("toaster"),
+			attr.Class("toaster"),
+		),
+		components.MainHeader(&components.MainHeaderData{User: b.user}),
 	}
 	bodyChildren = append(bodyChildren, b.children...)
 
@@ -36,12 +41,6 @@ func (b mainLayout) Render(w http.ResponseWriter, r *http.Request) error {
 	if flash != nil && flash.Type == services.FlashCelebration {
 		bodyChildren = append(bodyChildren, components.Celebration())
 	}
-
-	// Add toaster container for toast notifications
-	bodyChildren = append(bodyChildren, html.Div(
-		attr.Id("toaster"),
-		attr.Class("toaster"),
-	))
 
 	doc := html.Document(
 		html.HTML(
