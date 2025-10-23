@@ -72,6 +72,14 @@ func socialLinks() html.Node {
 			ui.SVGIcon(ui.IconDiscord, ""),
 		),
 		html.A(
+			attr.Href("https://bsky.app/profile/hypercode.ovh"),
+			attr.Target("_blank"),
+			attr.Rel("noopener noreferrer"),
+			attr.AriaLabel("Follow us on Bluesky"),
+			attr.Class("btn-icon-ghost"),
+			ui.SVGIcon(ui.IconBluesky, ""),
+		),
+		html.A(
 			attr.Href("https://github.com/hyperstitieux/hypercode"),
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
@@ -196,6 +204,15 @@ func userAccountDropdown(user *models.User) html.Node {
 						attr.Class("cursor-pointer"),
 						ui.SVGIcon(ui.IconDiscord, ""),
 						html.Text("Join our Discord"),
+					),
+					html.A(
+						attr.Href("https://bsky.app/profile/hypercode.ovh"),
+						attr.Target("_blank"),
+						attr.Rel("noopener noreferrer"),
+						attr.Role("menuitem"),
+						attr.Class("cursor-pointer"),
+						ui.SVGIcon(ui.IconBluesky, ""),
+						html.Text("Follow us on Bluesky"),
 					),
 					html.A(
 						attr.Href("https://github.com/hyperstitieux/hypercode"),
