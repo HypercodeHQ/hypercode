@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/hypercodehq/hypercode/html"
-	"github.com/hypercodehq/hypercode/html/attr"
+	"github.com/hypercodehq/libhtml"
+	"github.com/hypercodehq/libhtml/attr"
 	"github.com/hypercodehq/hypercode/views/components/ui"
 )
 

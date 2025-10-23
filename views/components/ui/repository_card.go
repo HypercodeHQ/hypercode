@@ -3,8 +3,8 @@ package ui
 import (
 	"fmt"
 
-	"github.com/hypercodehq/hypercode/html"
-	"github.com/hypercodehq/hypercode/html/attr"
+	"github.com/hypercodehq/libhtml"
+	"github.com/hypercodehq/libhtml/attr"
 )
 
 type RepositoryCardProps struct {

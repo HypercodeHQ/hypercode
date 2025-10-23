@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/hypercode/html"
-	"github.com/hypercodehq/hypercode/html/attr"
+	"github.com/hypercodehq/libhtml"
+	"github.com/hypercodehq/libhtml/attr"
 	"github.com/hypercodehq/hypercode/middleware"
 	"github.com/hypercodehq/hypercode/services"
 	"github.com/hypercodehq/hypercode/views/components"
