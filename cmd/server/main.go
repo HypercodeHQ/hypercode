@@ -36,6 +36,7 @@ func main() {
 	stars := repositories.NewStarsRepository(db.DB)
 	tickets := repositories.NewTicketsRepository(db.DB)
 	accessTokens := repositories.NewAccessTokensRepository(db.DB)
+	deviceAuthSessions := repositories.NewDeviceAuthSessionsRepository(db.DB)
 
 	authService := services.NewAuthService(users, cfg.SigningSecret)
 	flashService := services.NewFlashService()
@@ -49,6 +50,7 @@ func main() {
 	githubAuthController := controllers.NewGitHubAuthController(users, authService, githubOAuthService)
 	settingsController := controllers.NewSettingsController(users, accessTokens, authService)
 	accessTokensController := controllers.NewAccessTokensController(accessTokens)
+	deviceAuthController := controllers.NewDeviceAuthController(deviceAuthSessions, accessTokens, users)
 	forgotPasswordController := controllers.NewForgotPasswordController()
 	resetPasswordController := controllers.NewResetPasswordController()
 	orgsController := controllers.NewOrganizationsController(orgs, users, repos, stars, authService)
@@ -80,6 +82,11 @@ func main() {
 
 	r.Get("/auth/github", wrapHandler(githubAuthController.Login))
 	r.Get("/auth/github/callback", wrapHandler(githubAuthController.Callback))
+
+	r.Post("/api/auth/device/code", wrapHandler(deviceAuthController.InitiateDeviceAuth))
+	r.Get("/api/auth/device/poll", wrapHandler(deviceAuthController.PollDeviceAuth))
+	r.Get("/auth/device", wrapHandler(deviceAuthController.ShowDeviceAuthPage))
+	r.Post("/auth/device/confirm", wrapHandler(deviceAuthController.ConfirmDeviceAuth))
 
 	r.Get("/settings", wrapHandler(settingsController.Show))
 	r.Post("/settings/general", wrapHandler(settingsController.UpdateGeneral))

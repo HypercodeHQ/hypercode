@@ -21,6 +21,7 @@ type GitService interface {
 	GetDefaultBranch(repoPath string) (string, error)
 	ListTree(repoPath, ref, path string) ([]TreeEntry, error)
 	GetFileContent(repoPath, ref, path string) ([]byte, error)
+	IsFile(repoPath, ref, path string) (bool, error)
 }
 
 type gitService struct {
@@ -182,4 +183,28 @@ func (s *gitService) GetFileContent(repoPath, ref, path string) ([]byte, error) 
 	}
 
 	return out.Bytes(), nil
+}
+
+// IsFile checks if the given path is a file (blob) or directory (tree)
+func (s *gitService) IsFile(repoPath, ref, path string) (bool, error) {
+	absPath, err := filepath.Abs(repoPath)
+	if err != nil {
+		return false, err
+	}
+
+	// Use git cat-file to check the type
+	objectPath := ref + ":" + path
+	cmd := exec.Command("git", "cat-file", "-t", objectPath)
+	cmd.Dir = absPath
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &out
+
+	if err := cmd.Run(); err != nil {
+		return false, fmt.Errorf("failed to check object type: %w", err)
+	}
+
+	objectType := strings.TrimSpace(out.String())
+	return objectType == "blob", nil
 }

@@ -85,12 +85,10 @@ func renderTreeContent(data *RepositoryTreeData) html.Node {
 
 	return html.Div(
 		attr.Class("space-y-4"),
-		// Branch selector and breadcrumb
-		html.Div(
-			attr.Class("flex flex-wrap items-center gap-4"),
-			branchSelector,
-			breadcrumb,
-		),
+		// Branch selector
+		branchSelector,
+		// Breadcrumb
+		breadcrumb,
 		// File list
 		fileList,
 	)
@@ -168,10 +166,13 @@ func renderPathBreadcrumb(data *RepositoryTreeData) html.Node {
 
 	// Root
 	breadcrumbItems = append(breadcrumbItems,
-		html.Element("a",
-			attr.Href(fmt.Sprintf("/%s/%s/tree/%s", data.OwnerUsername, data.Repository.Name, data.CurrentBranch)),
-			attr.Class("text-muted-foreground hover:text-foreground transition-colors"),
-			html.Text(data.Repository.Name),
+		html.Element("li",
+			attr.Class("inline-flex items-center gap-1.5"),
+			html.Element("a",
+				attr.Href(fmt.Sprintf("/%s/%s/tree/%s", data.OwnerUsername, data.Repository.Name, data.CurrentBranch)),
+				attr.Class("hover:text-foreground transition-colors"),
+				html.Text(data.Repository.Name),
+			),
 		),
 	)
 
@@ -183,32 +184,41 @@ func renderPathBreadcrumb(data *RepositoryTreeData) html.Node {
 		}
 		currentPath += part
 
-		breadcrumbItems = append(breadcrumbItems, html.Span(
-			attr.Class("text-muted-foreground"),
-			html.Text(" / "),
-		))
+		// Add separator
+		breadcrumbItems = append(breadcrumbItems,
+			html.Element("li",
+				ui.SVGIcon(ui.IconChevronRight, "size-3.5"),
+			),
+		)
 
 		if i == len(parts)-1 {
 			// Last part - not a link
-			breadcrumbItems = append(breadcrumbItems, html.Span(
-				attr.Class("text-foreground font-medium"),
-				html.Text(part),
+			breadcrumbItems = append(breadcrumbItems, html.Element("li",
+				attr.Class("inline-flex items-center gap-1.5"),
+				html.Element("span",
+					attr.Class("text-foreground font-normal"),
+					html.Text(part),
+				),
 			))
 		} else {
 			// Intermediate part - link
 			breadcrumbItems = append(breadcrumbItems,
-				html.Element("a",
-					attr.Href(fmt.Sprintf("/%s/%s/tree/%s/%s", data.OwnerUsername, data.Repository.Name, data.CurrentBranch, currentPath)),
-					attr.Class("text-muted-foreground hover:text-foreground transition-colors"),
-					html.Text(part),
+				html.Element("li",
+					attr.Class("inline-flex items-center gap-1.5"),
+					html.Element("a",
+						attr.Href(fmt.Sprintf("/%s/%s/tree/%s/%s", data.OwnerUsername, data.Repository.Name, data.CurrentBranch, currentPath)),
+						attr.Class("hover:text-foreground transition-colors"),
+						html.Text(part),
+					),
 				),
 			)
 		}
 	}
 
-	breadcrumbChildren := []html.Node{attr.Class("flex items-center text-sm")}
-	breadcrumbChildren = append(breadcrumbChildren, breadcrumbItems...)
-	return html.Div(breadcrumbChildren...)
+	return html.Element("ol",
+		attr.Class("text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5"),
+		html.Group(breadcrumbItems...),
+	)
 }
 
 func renderFileList(data *RepositoryTreeData) html.Node {

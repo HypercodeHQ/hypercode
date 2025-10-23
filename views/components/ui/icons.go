@@ -10,6 +10,7 @@ type Icon string
 const (
 	IconCheck        Icon = "check"
 	IconChevronDown  Icon = "chevron-down"
+	IconChevronRight Icon = "chevron-right"
 	IconX            Icon = "x"
 	IconAlertCircle  Icon = "alert-circle"
 	IconInfo         Icon = "info"
@@ -77,6 +78,10 @@ func SVGIcon(icon Icon, class string) html.Node {
 	case IconChevronDown:
 		paths = []html.Node{
 			html.Element("path", attr.D("m6 9 6 6 6-6")),
+		}
+	case IconChevronRight:
+		paths = []html.Node{
+			html.Element("path", attr.D("m9 18 6-6-6-6")),
 		}
 	case IconX:
 		paths = []html.Node{

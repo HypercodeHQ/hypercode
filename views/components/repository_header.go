@@ -91,7 +91,6 @@ func RepositoryHeader(data *RepositoryHeaderData) html.Node {
 				data.User != nil,
 				html.Div(
 					attr.Class("flex items-center gap-2"),
-					starButton(data),
 					ShareDropdown(&RepositoryActionsDropdownData{
 						OwnerUsername: data.OwnerUsername,
 						RepoName:      data.RepoName,
@@ -104,6 +103,7 @@ func RepositoryHeader(data *RepositoryHeaderData) html.Node {
 						CloneURL:      data.CloneURL,
 						RepositoryURL: data.RepositoryURL,
 					}),
+					starButton(data),
 				),
 			),
 		),

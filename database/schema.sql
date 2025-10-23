@@ -19,6 +19,17 @@ CREATE TABLE IF NOT EXISTS access_tokens (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS device_auth_sessions (
+    id TEXT PRIMARY KEY,
+    code TEXT NOT NULL UNIQUE,
+    user_id INTEGER,
+    access_token TEXT,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'confirmed', 'expired')),
+    created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+    expires_at INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS organizations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
@@ -151,6 +162,10 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
 CREATE INDEX IF NOT EXISTS idx_access_tokens_user ON access_tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_access_tokens_token_hash ON access_tokens(token_hash);
+
+CREATE INDEX IF NOT EXISTS idx_device_auth_sessions_code ON device_auth_sessions(code);
+CREATE INDEX IF NOT EXISTS idx_device_auth_sessions_status ON device_auth_sessions(status);
+CREATE INDEX IF NOT EXISTS idx_device_auth_sessions_expires_at ON device_auth_sessions(expires_at);
 
 CREATE INDEX IF NOT EXISTS idx_organizations_username ON organizations(username);
 

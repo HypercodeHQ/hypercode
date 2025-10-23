@@ -71,7 +71,7 @@ func (c *gitController) handleGitOperation(w http.ResponseWriter, r *http.Reques
 	owner := chi.URLParam(r, "owner")
 	repoName := chi.URLParam(r, "repo")
 
-	if repoName[len(repoName)-4:] == ".git" {
+	if len(repoName) >= 4 && repoName[len(repoName)-4:] == ".git" {
 		repoName = repoName[:len(repoName)-4]
 	}
 

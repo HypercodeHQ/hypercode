@@ -28,6 +28,7 @@ func NewCommandWithFlags(name, usage, description string, flags []cli.Flag, acti
 // GetAllCommands returns all available CLI commands
 func GetAllCommands() []*cli.Command {
 	return []*cli.Command{
+		LoginCommand(),
 		CommitCommand(),
 	}
 }

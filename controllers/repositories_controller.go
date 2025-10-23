@@ -205,7 +205,7 @@ func (c *repositoriesController) Store(w http.ResponseWriter, r *http.Request) e
 		slog.Error("failed to create admin contributor", "error", err)
 	}
 
-	repoPath := filepath.Join(c.reposBasePath, ownerIDForPath, name)
+	repoPath := filepath.Join(c.reposBasePath, ownerIDForPath, fmt.Sprintf("%d", repo.ID))
 	if err := os.MkdirAll(repoPath, 0755); err != nil {
 		slog.Error("failed to create repository directory", "error", err)
 		return httperror.New(http.StatusInternalServerError, "failed to create repository")
@@ -425,24 +425,27 @@ func (c *repositoriesController) Tree(w http.ResponseWriter, r *http.Request) er
 		return nil
 	}
 
-	// Try to get file content first (if treePath points to a file)
+	// Check if treePath points to a file or directory
 	if treePath != "" {
-		fileContent, err := c.gitService.GetFileContent(repoPath, ref, treePath)
-		if err == nil && fileContent != nil {
+		isFile, err := c.gitService.IsFile(repoPath, ref, treePath)
+		if err == nil && isFile {
 			// It's a file - display file content
-			data := &pages.RepositoryFileData{
-				User:          user,
-				Repository:    repo,
-				OwnerUsername: owner,
-				CanManage:     canManage,
-				StarCount:     starCount,
-				HasStarred:    hasStarred,
-				Branches:      branches,
-				CurrentBranch: ref,
-				CurrentPath:   treePath,
-				FileContent:   string(fileContent),
+			fileContent, err := c.gitService.GetFileContent(repoPath, ref, treePath)
+			if err == nil && fileContent != nil {
+				data := &pages.RepositoryFileData{
+					User:          user,
+					Repository:    repo,
+					OwnerUsername: owner,
+					CanManage:     canManage,
+					StarCount:     starCount,
+					HasStarred:    hasStarred,
+					Branches:      branches,
+					CurrentBranch: ref,
+					CurrentPath:   treePath,
+					FileContent:   string(fileContent),
+				}
+				return pages.RepositoryFile(r, data).Render(w, r)
 			}
-			return pages.RepositoryFile(r, data).Render(w, r)
 		}
 	}
 
