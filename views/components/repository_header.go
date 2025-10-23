@@ -19,6 +19,8 @@ type RepositoryHeaderData struct {
 	StarCount     int64
 	HasStarred    bool
 	DefaultBranch string
+	CloneURL      string
+	RepositoryURL string
 }
 
 func RepositoryHeader(data *RepositoryHeaderData) html.Node {
@@ -88,8 +90,20 @@ func RepositoryHeader(data *RepositoryHeaderData) html.Node {
 			html.If(
 				data.User != nil,
 				html.Div(
-					attr.Class("flex items-center"),
+					attr.Class("flex items-center gap-2"),
 					starButton(data),
+					ShareDropdown(&RepositoryActionsDropdownData{
+						OwnerUsername: data.OwnerUsername,
+						RepoName:      data.RepoName,
+						CloneURL:      data.CloneURL,
+						RepositoryURL: data.RepositoryURL,
+					}),
+					CloneDropdown(&RepositoryActionsDropdownData{
+						OwnerUsername: data.OwnerUsername,
+						RepoName:      data.RepoName,
+						CloneURL:      data.CloneURL,
+						RepositoryURL: data.RepositoryURL,
+					}),
 				),
 			),
 		),

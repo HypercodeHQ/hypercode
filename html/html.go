@@ -105,6 +105,14 @@ func Header(children ...Node) Node {
 	return createElement("header", children...)
 }
 
+func Footer(children ...Node) Node {
+	return createElement("footer", children...)
+}
+
+func Section(children ...Node) Node {
+	return createElement("section", children...)
+}
+
 func H1(children ...Node) Node {
 	return createElement("h1", children...)
 }
@@ -129,8 +137,60 @@ func A(children ...Node) Node {
 	return createElement("a", children...)
 }
 
+func Button(children ...Node) Node {
+	return createElement("button", children...)
+}
+
+func Span(children ...Node) Node {
+	return createElement("span", children...)
+}
+
+func Select(children ...Node) Node {
+	return createElement("select", children...)
+}
+
+func Option(children ...Node) Node {
+	return createElement("option", children...)
+}
+
+func Textarea(children ...Node) Node {
+	return createElement("textarea", children...)
+}
+
+func Script(children ...Node) Node {
+	return createElement("script", children...)
+}
+
+func Table(children ...Node) Node {
+	return createElement("table", children...)
+}
+
+func Tbody(children ...Node) Node {
+	return createElement("tbody", children...)
+}
+
+func Tr(children ...Node) Node {
+	return createElement("tr", children...)
+}
+
+func Td(children ...Node) Node {
+	return createElement("td", children...)
+}
+
+func Details(children ...Node) Node {
+	return createElement("details", children...)
+}
+
+func Summary(children ...Node) Node {
+	return createElement("summary", children...)
+}
+
 func Nav(children ...Node) Node {
 	return createElement("nav", children...)
+}
+
+func Hr(children ...Node) Node {
+	return createElement("hr", children...)
 }
 
 func Label(children ...Node) Node {

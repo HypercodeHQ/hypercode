@@ -104,12 +104,12 @@ func loggedOutActions() html.Node {
 		attr.Class("flex flex-wrap items-center gap-4"),
 		socialLinks(),
 		html.A(
-			attr.Href("/sign-in"),
+			attr.Href("/auth/sign-in"),
 			attr.Class("btn-outline"),
 			html.Text("Sign in"),
 		),
 		html.A(
-			attr.Href("/sign-up"),
+			attr.Href("/auth/sign-up"),
 			attr.Class("btn"),
 			html.Text("Create an account"),
 		),
@@ -145,9 +145,7 @@ func createNewDropdown() html.Node {
 						attr.Id("create-new-label"),
 						html.Text("Create"),
 					),
-					html.Element("hr",
-						attr.Role("separator"),
-					),
+					html.Hr(attr.Role("separator")),
 					html.A(
 						attr.Class("cursor-pointer"),
 						attr.Href("/repositories/new"),
@@ -155,6 +153,7 @@ func createNewDropdown() html.Node {
 						ui.SVGIcon(ui.IconRepository, ""),
 						html.Text("New repository"),
 					),
+					html.Hr(attr.Role("separator")),
 					html.A(
 						attr.Class("cursor-pointer"),
 						attr.Href("/organizations/new"),
@@ -200,9 +199,7 @@ func userAccountDropdown(user *models.User) html.Node {
 						attr.Id("user-label"),
 						html.Text("@"+user.Username),
 					),
-					html.Element("hr",
-						attr.Role("separator"),
-					),
+					html.Hr(attr.Role("separator")),
 					html.A(
 						attr.Href("/"+user.Username),
 						attr.Role("menuitem"),
@@ -217,9 +214,7 @@ func userAccountDropdown(user *models.User) html.Node {
 						ui.SVGIcon(ui.IconSettings, ""),
 						html.Text("Settings"),
 					),
-					html.Element("hr",
-						attr.Role("separator"),
-					),
+					html.Hr(attr.Role("separator")),
 					html.A(
 						attr.Href("https://x.com/hypercode2099"),
 						attr.Target("_blank"),
@@ -256,11 +251,9 @@ func userAccountDropdown(user *models.User) html.Node {
 						ui.SVGIcon(ui.IconGitHub, ""),
 						html.Text("Star us on GitHub"),
 					),
-					html.Element("hr",
-						attr.Role("separator"),
-					),
+					html.Hr(attr.Role("separator")),
 					html.A(
-						attr.Href("/sign-out"),
+						attr.Href("/auth/sign-out"),
 						attr.Role("menuitem"),
 						attr.Class("cursor-pointer text-destructive"),
 						ui.SVGIcon(ui.IconLogOut, "text-destructive"),
@@ -283,5 +276,9 @@ func getUserInitials(user *models.User) string {
 }
 
 func MainHeader(data *HeaderData) html.Node {
-	return Header(data)
+	return Header(data, html.A(
+		attr.Class("btn-ghost"),
+		attr.Href("/explore/repositories"),
+		html.Text("Explore"),
+	))
 }

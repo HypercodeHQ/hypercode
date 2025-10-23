@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/hyperstitieux/hypercode/database/models"
 	"github.com/hyperstitieux/hypercode/database/repositories"
 	"github.com/hyperstitieux/hypercode/httperror"
 	"github.com/hyperstitieux/hypercode/middleware"
@@ -18,33 +19,86 @@ type SettingsController interface {
 }
 
 type settingsController struct {
-	users       repositories.UsersRepository
-	authService services.AuthService
+	users        repositories.UsersRepository
+	accessTokens repositories.AccessTokensRepository
+	authService  services.AuthService
 }
 
-func NewSettingsController(users repositories.UsersRepository, authService services.AuthService) SettingsController {
+func NewSettingsController(users repositories.UsersRepository, accessTokens repositories.AccessTokensRepository, authService services.AuthService) SettingsController {
 	return &settingsController{
-		users:       users,
-		authService: authService,
+		users:        users,
+		accessTokens: accessTokens,
+		authService:  authService,
 	}
 }
 
 func (c *settingsController) Show(w http.ResponseWriter, r *http.Request) error {
 	user := middleware.GetUserFromContext(r)
 	if user == nil {
-		http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
 		return nil
 	}
 
+	// Load access tokens
+	tokens, err := c.accessTokens.FindByUserID(user.ID)
+	if err != nil {
+		return err
+	}
+	if tokens == nil {
+		tokens = []*models.AccessToken{}
+	}
+
+	// Get flash messages from cookies
+	newToken := ""
+	tokenSuccess := ""
+	tokenError := ""
+
+	if cookie, err := r.Cookie("new_access_token"); err == nil {
+		newToken = cookie.Value
+		// Clear cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:   "new_access_token",
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1,
+		})
+	}
+
+	if cookie, err := r.Cookie("access_token_success"); err == nil {
+		tokenSuccess = cookie.Value
+		// Clear cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:   "access_token_success",
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1,
+		})
+	}
+
+	if cookie, err := r.Cookie("access_token_error"); err == nil {
+		tokenError = cookie.Value
+		// Clear cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:   "access_token_error",
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1,
+		})
+	}
+
 	return pages.Settings(r, &pages.SettingsData{
-		User: user,
+		User:               user,
+		AccessTokens:       tokens,
+		NewAccessToken:     newToken,
+		AccessTokenSuccess: tokenSuccess,
+		AccessTokenError:   tokenError,
 	}).Render(w, r)
 }
 
 func (c *settingsController) UpdateGeneral(w http.ResponseWriter, r *http.Request) error {
 	user := middleware.GetUserFromContext(r)
 	if user == nil {
-		http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
 		return nil
 	}
 
@@ -104,7 +158,7 @@ func (c *settingsController) UpdateGeneral(w http.ResponseWriter, r *http.Reques
 func (c *settingsController) UpdatePassword(w http.ResponseWriter, r *http.Request) error {
 	user := middleware.GetUserFromContext(r)
 	if user == nil {
-		http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
 		return nil
 	}
 
@@ -122,10 +176,14 @@ func (c *settingsController) UpdatePassword(w http.ResponseWriter, r *http.Reque
 
 	hasErrors := false
 
-	if currentPassword == "" {
+	// Check if user has a password (not a GitHub OAuth user)
+	if user.Password == nil {
+		settingsData.CurrentPasswordError = "Cannot change password for OAuth accounts"
+		hasErrors = true
+	} else if currentPassword == "" {
 		settingsData.CurrentPasswordError = "Current password is required"
 		hasErrors = true
-	} else if !c.authService.CheckPassword(currentPassword, user.Password) {
+	} else if !c.authService.CheckPassword(currentPassword, *user.Password) {
 		settingsData.CurrentPasswordError = "Current password is incorrect"
 		hasErrors = true
 	}
@@ -157,7 +215,7 @@ func (c *settingsController) UpdatePassword(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Update password
-	user.Password = hashedPassword
+	user.Password = &hashedPassword
 	if err := c.users.Update(user); err != nil {
 		return err
 	}

@@ -98,11 +98,11 @@ func NewRepository(r *http.Request, data *NewRepositoryData) html.Node {
 								ui.SVGIcon(ui.IconGlobe, "h-4 w-4 text-muted-foreground"),
 								html.Div(
 									attr.Class("flex flex-col"),
-									html.Element("span",
+									html.Span(
 										attr.Class("font-medium text-sm"),
 										html.Text("Public"),
 									),
-									html.Element("span",
+									html.Span(
 										attr.Class("text-xs text-muted-foreground"),
 										html.Text("Anyone can view this repository"),
 									),
@@ -125,11 +125,11 @@ func NewRepository(r *http.Request, data *NewRepositoryData) html.Node {
 								ui.SVGIcon(ui.IconLock, "h-4 w-4 text-muted-foreground"),
 								html.Div(
 									attr.Class("flex flex-col"),
-									html.Element("span",
+									html.Span(
 										attr.Class("font-medium text-sm"),
 										html.Text("Private"),
 									),
-									html.Element("span",
+									html.Span(
 										attr.Class("text-xs text-muted-foreground"),
 										html.Text("Only you and collaborators can access"),
 									),
@@ -146,7 +146,7 @@ func NewRepository(r *http.Request, data *NewRepositoryData) html.Node {
 					html.Text("Create repository"),
 				),
 			),
-			html.Element("script",
+			html.Script(
 				html.Text(`
 						const nameInput = document.getElementById("name");
 						nameInput.addEventListener("input", (e) => {
@@ -214,6 +214,6 @@ func ownerSelector(user *models.User, organizations []*models.Organization, sele
 		Label:    "Owner",
 		Options:  options,
 		Required: true,
-		Class:    "!mb-2",
+		Class:    "w-full",
 	})
 }

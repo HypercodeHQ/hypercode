@@ -34,21 +34,28 @@ func main() {
 	repos := repositories.NewRepositoriesRepository(db.DB)
 	contributors := repositories.NewContributorsRepository(db.DB)
 	stars := repositories.NewStarsRepository(db.DB)
+	tickets := repositories.NewTicketsRepository(db.DB)
+	accessTokens := repositories.NewAccessTokensRepository(db.DB)
 
 	authService := services.NewAuthService(users, cfg.SigningSecret)
 	flashService := services.NewFlashService()
 	gitService := services.NewGitService(cfg.ReposBasePath)
+	githubOAuthService := services.NewGitHubOAuthService(cfg.GitHubClientID, cfg.GitHubClientSecret, cfg.GitHubCallbackURL)
 
-	homeController := controllers.NewHomeController(repos, users, orgs)
+	homeController := controllers.NewHomeController(repos, users, orgs, stars)
 	signUpController := controllers.NewSignUpController(users, authService, flashService)
 	signInController := controllers.NewSignInController(users, authService)
 	signOutController := controllers.NewSignOutController(authService)
-	settingsController := controllers.NewSettingsController(users, authService)
+	githubAuthController := controllers.NewGitHubAuthController(users, authService, githubOAuthService)
+	settingsController := controllers.NewSettingsController(users, accessTokens, authService)
+	accessTokensController := controllers.NewAccessTokensController(accessTokens)
 	forgotPasswordController := controllers.NewForgotPasswordController()
 	resetPasswordController := controllers.NewResetPasswordController()
-	orgsController := controllers.NewOrganizationsController(orgs, users, repos, authService)
+	orgsController := controllers.NewOrganizationsController(orgs, users, repos, stars, authService)
 	reposController := controllers.NewRepositoriesController(repos, users, contributors, stars, orgs, authService, gitService, cfg.ReposBasePath)
-	gitController := controllers.NewGitController(users, orgs, repos, contributors, authService, cfg.ReposBasePath)
+	gitController := controllers.NewGitController(users, orgs, repos, contributors, accessTokens, authService, cfg.ReposBasePath)
+	exploreController := controllers.NewExploreController(repos, users, orgs, stars, authService)
+	ticketsController := controllers.NewTicketsController(tickets, repos, users, stars, authService)
 
 	r := chi.NewRouter()
 
@@ -63,17 +70,22 @@ func main() {
 
 	r.Get("/", wrapHandler(homeController.Show))
 
-	r.Get("/sign-up", wrapHandler(signUpController.Show))
-	r.Post("/sign-up", wrapHandler(signUpController.Handle))
+	r.Get("/auth/sign-up", wrapHandler(signUpController.Show))
+	r.Post("/auth/sign-up", wrapHandler(signUpController.Handle))
 
-	r.Get("/sign-in", wrapHandler(signInController.Show))
-	r.Post("/sign-in", wrapHandler(signInController.Handle))
+	r.Get("/auth/sign-in", wrapHandler(signInController.Show))
+	r.Post("/auth/sign-in", wrapHandler(signInController.Handle))
 
-	r.Get("/sign-out", wrapHandler(signOutController.Handle))
+	r.Get("/auth/sign-out", wrapHandler(signOutController.Handle))
+
+	r.Get("/auth/github", wrapHandler(githubAuthController.Login))
+	r.Get("/auth/github/callback", wrapHandler(githubAuthController.Callback))
 
 	r.Get("/settings", wrapHandler(settingsController.Show))
 	r.Post("/settings/general", wrapHandler(settingsController.UpdateGeneral))
 	r.Post("/settings/password", wrapHandler(settingsController.UpdatePassword))
+	r.Post("/settings/access-tokens", wrapHandler(accessTokensController.Create))
+	r.Post("/settings/access-tokens/{id}/delete", wrapHandler(accessTokensController.Delete))
 
 	r.Get("/forgot-password", wrapHandler(forgotPasswordController.Show))
 	r.Post("/forgot-password", wrapHandler(forgotPasswordController.Handle))
@@ -87,10 +99,16 @@ func main() {
 	r.Get("/organizations/new", wrapHandler(orgsController.Create))
 	r.Post("/organizations/new", wrapHandler(orgsController.Store))
 
+	r.Get("/explore/repositories", wrapHandler(exploreController.Repositories))
+	r.Get("/explore/users", wrapHandler(exploreController.Users))
+	r.Get("/explore/organizations", wrapHandler(exploreController.Organizations))
+
 	r.Route("/{owner}", func(r chi.Router) {
 		r.Use(custommiddleware.OwnerResolver(users, orgs))
 
 		r.Get("/", wrapHandler(orgsController.Show))
+		r.Get("/repositories", wrapHandler(orgsController.Repositories))
+		r.Get("/stars", wrapHandler(orgsController.Stars))
 		r.Get("/settings", wrapHandler(orgsController.Settings))
 		r.Put("/settings", wrapHandler(orgsController.Update))
 		r.Delete("/", wrapHandler(orgsController.Delete))
@@ -101,12 +119,24 @@ func main() {
 			r.Post("/unstar", wrapHandler(reposController.Unstar))
 			r.Get("/settings", wrapHandler(reposController.Settings))
 			r.Post("/settings/general", wrapHandler(reposController.UpdateSettings))
+			r.Post("/settings/collaborators/add", wrapHandler(reposController.AddCollaborator))
+			r.Post("/settings/collaborators/remove", wrapHandler(reposController.RemoveCollaborator))
+			r.Post("/settings/collaborators/update", wrapHandler(reposController.UpdateCollaboratorRole))
 			r.Post("/settings/delete", wrapHandler(reposController.Delete))
 
 			// Tree routes - handle both with and without ref
 			r.Get("/tree", wrapHandler(reposController.Tree))
 			r.Get("/tree/{ref}", wrapHandler(reposController.Tree))
 			r.Get("/tree/{ref}/*", wrapHandler(reposController.Tree))
+
+			// Tickets routes
+			r.Get("/tickets", wrapHandler(ticketsController.List))
+			r.Get("/tickets/new", wrapHandler(ticketsController.New))
+			r.Post("/tickets/new", wrapHandler(ticketsController.Create))
+			r.Get("/tickets/{number}", wrapHandler(ticketsController.Show))
+			r.Post("/tickets/{number}/close", wrapHandler(ticketsController.Close))
+			r.Post("/tickets/{number}/reopen", wrapHandler(ticketsController.Reopen))
+			r.Post("/tickets/{number}/comments", wrapHandler(ticketsController.CreateComment))
 
 			r.Get("/info/refs", wrapHandler(gitController.InfoRefs))
 			r.Post("/git-upload-pack", wrapHandler(gitController.UploadPack))

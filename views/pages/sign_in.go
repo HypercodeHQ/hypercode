@@ -38,35 +38,53 @@ func SignIn(r *http.Request, data *SignInData) html.Node {
 				Title:       "Error",
 				Description: data.Error,
 			})),
-			html.Form(
-				attr.Method("POST"),
-				attr.Action("/sign-in"),
+			html.Div(
 				attr.Class("w-full space-y-4"),
-				ui.FormField(ui.FormFieldProps{
-					Label:       "Email Address",
-					Id:          "email",
-					Name:        "email",
-					Type:        "email",
-					Placeholder: "john@doe.com",
-					Icon:        ui.IconMail,
-					Required:    true,
-				}),
-				ui.FormField(ui.FormFieldProps{
-					Label:       "Password",
-					Id:          "password",
-					Name:        "password",
-					Type:        "password",
-					Placeholder: "••••••••••••••••",
-					Icon:        ui.IconLock,
-					Required:    true,
-				}),
-				ui.Button(
-					ui.ButtonProps{
-						Variant: ui.ButtonPrimary,
-						Type:    "submit",
-						Class:   "w-full",
-					},
-					html.Text("Sign In"),
+				ui.GitHubAuthButton(),
+				html.Div(
+					attr.Class("relative"),
+					html.Div(
+						attr.Class("absolute inset-0 flex items-center"),
+						html.Div(attr.Class("w-full border-t border-border")),
+					),
+					html.Div(
+						attr.Class("relative flex justify-center text-xs uppercase"),
+						html.Span(
+							attr.Class("bg-neutral-50 px-2 text-muted-foreground"),
+							html.Text("Or continue with"),
+						),
+					),
+				),
+				html.Form(
+					attr.Method("POST"),
+					attr.Action("/auth/sign-in"),
+					attr.Class("space-y-4"),
+					ui.FormField(ui.FormFieldProps{
+						Label:       "Email Address",
+						Id:          "email",
+						Name:        "email",
+						Type:        "email",
+						Placeholder: "john@doe.com",
+						Icon:        ui.IconMail,
+						Required:    true,
+					}),
+					ui.FormField(ui.FormFieldProps{
+						Label:       "Password",
+						Id:          "password",
+						Name:        "password",
+						Type:        "password",
+						Placeholder: "••••••••••••••••",
+						Icon:        ui.IconLock,
+						Required:    true,
+					}),
+					ui.Button(
+						ui.ButtonProps{
+							Variant: ui.ButtonPrimary,
+							Type:    "submit",
+							Class:   "w-full",
+						},
+						html.Text("Sign In"),
+					),
 				),
 			),
 		),

@@ -9,9 +9,12 @@ import (
 
 type UsersRepository interface {
 	Create(username, email, displayName, password string) (*models.User, error)
+	CreateFromGitHub(username, email, displayName, githubUserID string) (*models.User, error)
 	FindByID(id int64) (*models.User, error)
 	FindByUsername(username string) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
+	FindByGitHubUserID(githubUserID string) (*models.User, error)
+	FindAll() ([]*models.User, error)
 	Update(user *models.User) error
 	Delete(id int64) error
 }
@@ -28,7 +31,7 @@ func (r *usersRepository) Create(username, email, displayName, password string) 
 	query := `
 		INSERT INTO users (username, email, display_name, password)
 		VALUES (?, ?, ?, ?)
-		RETURNING id, username, email, display_name, password, created_at, updated_at
+		RETURNING id, username, email, display_name, password, github_user_id, created_at, updated_at
 	`
 
 	user := &models.User{}
@@ -38,6 +41,32 @@ func (r *usersRepository) Create(username, email, displayName, password string) 
 		&user.Email,
 		&user.DisplayName,
 		&user.Password,
+		&user.GitHubUserID,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (r *usersRepository) CreateFromGitHub(username, email, displayName, githubUserID string) (*models.User, error) {
+	query := `
+		INSERT INTO users (username, email, display_name, github_user_id)
+		VALUES (?, ?, ?, ?)
+		RETURNING id, username, email, display_name, password, github_user_id, created_at, updated_at
+	`
+
+	user := &models.User{}
+	err := r.db.QueryRow(query, username, email, displayName, githubUserID).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.DisplayName,
+		&user.Password,
+		&user.GitHubUserID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -50,7 +79,7 @@ func (r *usersRepository) Create(username, email, displayName, password string) 
 
 func (r *usersRepository) FindByID(id int64) (*models.User, error) {
 	query := `
-		SELECT id, username, email, display_name, password, created_at, updated_at
+		SELECT id, username, email, display_name, password, github_user_id, created_at, updated_at
 		FROM users
 		WHERE id = ?
 	`
@@ -62,6 +91,7 @@ func (r *usersRepository) FindByID(id int64) (*models.User, error) {
 		&user.Email,
 		&user.DisplayName,
 		&user.Password,
+		&user.GitHubUserID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -77,7 +107,7 @@ func (r *usersRepository) FindByID(id int64) (*models.User, error) {
 
 func (r *usersRepository) FindByUsername(username string) (*models.User, error) {
 	query := `
-		SELECT id, username, email, display_name, password, created_at, updated_at
+		SELECT id, username, email, display_name, password, github_user_id, created_at, updated_at
 		FROM users
 		WHERE username = ?
 	`
@@ -89,6 +119,7 @@ func (r *usersRepository) FindByUsername(username string) (*models.User, error) 
 		&user.Email,
 		&user.DisplayName,
 		&user.Password,
+		&user.GitHubUserID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -104,7 +135,7 @@ func (r *usersRepository) FindByUsername(username string) (*models.User, error) 
 
 func (r *usersRepository) FindByEmail(email string) (*models.User, error) {
 	query := `
-		SELECT id, username, email, display_name, password, created_at, updated_at
+		SELECT id, username, email, display_name, password, github_user_id, created_at, updated_at
 		FROM users
 		WHERE email = ?
 	`
@@ -116,6 +147,35 @@ func (r *usersRepository) FindByEmail(email string) (*models.User, error) {
 		&user.Email,
 		&user.DisplayName,
 		&user.Password,
+		&user.GitHubUserID,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (r *usersRepository) FindByGitHubUserID(githubUserID string) (*models.User, error) {
+	query := `
+		SELECT id, username, email, display_name, password, github_user_id, created_at, updated_at
+		FROM users
+		WHERE github_user_id = ?
+	`
+
+	user := &models.User{}
+	err := r.db.QueryRow(query, githubUserID).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.DisplayName,
+		&user.Password,
+		&user.GitHubUserID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -132,11 +192,11 @@ func (r *usersRepository) FindByEmail(email string) (*models.User, error) {
 func (r *usersRepository) Update(user *models.User) error {
 	query := `
 		UPDATE users
-		SET username = ?, email = ?, display_name = ?, password = ?
+		SET username = ?, email = ?, display_name = ?, password = ?, github_user_id = ?
 		WHERE id = ?
 	`
 
-	result, err := r.db.Exec(query, user.Username, user.Email, user.DisplayName, user.Password, user.ID)
+	result, err := r.db.Exec(query, user.Username, user.Email, user.DisplayName, user.Password, user.GitHubUserID, user.ID)
 	if err != nil {
 		return err
 	}
@@ -151,6 +211,41 @@ func (r *usersRepository) Update(user *models.User) error {
 	}
 
 	return nil
+}
+
+func (r *usersRepository) FindAll() ([]*models.User, error) {
+	query := `
+		SELECT id, username, email, display_name, password, github_user_id, created_at, updated_at
+		FROM users
+		ORDER BY id ASC
+	`
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*models.User
+	for rows.Next() {
+		user := &models.User{}
+		err := rows.Scan(
+			&user.ID,
+			&user.Username,
+			&user.Email,
+			&user.DisplayName,
+			&user.Password,
+			&user.GitHubUserID,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func (r *usersRepository) Delete(id int64) error {

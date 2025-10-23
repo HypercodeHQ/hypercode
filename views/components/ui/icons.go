@@ -24,6 +24,7 @@ const (
 	IconRepository   Icon = "repository"
 	IconBuilding     Icon = "building"
 	IconUser         Icon = "user"
+	IconUsers        Icon = "users"
 	IconSettings     Icon = "settings"
 	IconLogOut       Icon = "log-out"
 	IconMail         Icon = "mail"
@@ -41,6 +42,12 @@ const (
 	IconStar         Icon = "star"
 	IconFolder       Icon = "folder"
 	IconFile         Icon = "file"
+	IconShare        Icon = "share"
+	IconLink         Icon = "link"
+	IconCircle       Icon = "circle"
+	IconEye          Icon = "eye"
+	IconEdit         Icon = "edit"
+	IconShield       Icon = "shield"
 )
 
 func SVGIcon(icon Icon, class string) html.Node {
@@ -161,6 +168,13 @@ func SVGIcon(icon Icon, class string) html.Node {
 			html.Element("path", attr.D("M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2")),
 			html.Element("circle", attr.Cx("12"), attr.Cy("7"), attr.R("4")),
 		}
+	case IconUsers:
+		paths = []html.Node{
+			html.Element("path", attr.D("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2")),
+			html.Element("circle", attr.Cx("9"), attr.Cy("7"), attr.R("4")),
+			html.Element("path", attr.D("M22 21v-2a4 4 0 0 0-3-3.87")),
+			html.Element("path", attr.D("M16 3.13a4 4 0 0 1 0 7.75")),
+		}
 	case IconSettings:
 		paths = []html.Node{
 			html.Element("path", attr.D("M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z")),
@@ -273,6 +287,36 @@ func SVGIcon(icon Icon, class string) html.Node {
 		paths = []html.Node{
 			html.Element("path", attr.D("M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z")),
 			html.Element("path", attr.D("M14 2v4a2 2 0 0 0 2 2h4")),
+		}
+	case IconShare:
+		paths = []html.Node{
+			html.Element("path", attr.D("M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8")),
+			html.Element("polyline", attr.Points("16 6 12 2 8 6")),
+			html.Element("line", attr.X1("12"), attr.X2("12"), attr.Y1("2"), attr.Y2("15")),
+		}
+	case IconLink:
+		paths = []html.Node{
+			html.Element("path", attr.D("M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71")),
+			html.Element("path", attr.D("M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71")),
+		}
+	case IconCircle:
+		paths = []html.Node{
+			html.Element("circle", attr.Cx("12"), attr.Cy("12"), attr.R("10")),
+			html.Element("circle", attr.Cx("12"), attr.Cy("12"), attr.R("1"), attr.Fill("currentColor")),
+		}
+	case IconEye:
+		paths = []html.Node{
+			html.Element("path", attr.D("M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z")),
+			html.Element("circle", attr.Cx("12"), attr.Cy("12"), attr.R("3")),
+		}
+	case IconEdit:
+		paths = []html.Node{
+			html.Element("path", attr.D("M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z")),
+			html.Element("path", attr.D("m15 5 4 4")),
+		}
+	case IconShield:
+		paths = []html.Node{
+			html.Element("path", attr.D("M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z")),
 		}
 	}
 

@@ -17,6 +17,7 @@ type RepositoriesRepository interface {
 	FindAllByUser(userID int64) ([]*models.Repository, error)
 	FindAllByOrg(orgID int64) ([]*models.Repository, error)
 	FindPublic() ([]*models.Repository, error)
+	FindAll() ([]*models.Repository, error)
 	Update(repo *models.Repository) error
 	Delete(id int64) error
 }
@@ -279,6 +280,42 @@ func (r *repositoriesRepository) FindPublic() ([]*models.Repository, error) {
 		FROM repositories
 		WHERE visibility = 'public'
 		ORDER BY created_at DESC
+	`
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var repos []*models.Repository
+	for rows.Next() {
+		repo := &models.Repository{}
+		err := rows.Scan(
+			&repo.ID,
+			&repo.Name,
+			&repo.Description,
+			&repo.DefaultBranch,
+			&repo.Visibility,
+			&repo.OwnerUserID,
+			&repo.OwnerOrgID,
+			&repo.CreatedAt,
+			&repo.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		repos = append(repos, repo)
+	}
+
+	return repos, nil
+}
+
+func (r *repositoriesRepository) FindAll() ([]*models.Repository, error) {
+	query := `
+		SELECT id, name, description, default_branch, visibility, owner_user_id, owner_org_id, created_at, updated_at
+		FROM repositories
+		ORDER BY id ASC
 	`
 
 	rows, err := r.db.Query(query)

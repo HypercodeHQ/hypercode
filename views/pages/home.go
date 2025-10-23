@@ -15,11 +15,6 @@ type HomeData struct {
 	Repositories []RepositoryWithOwner
 }
 
-type RepositoryWithOwner struct {
-	Repository    *models.Repository
-	OwnerUsername string
-}
-
 func Home(r *http.Request, data *HomeData) html.Node {
 	if data == nil {
 		data = &HomeData{}
@@ -35,6 +30,7 @@ func Home(r *http.Request, data *HomeData) html.Node {
 					OwnerUsername: repo.OwnerUsername,
 					Name:          repo.Repository.Name,
 					IsPublic:      repo.Repository.Visibility == "public",
+					StarCount:     repo.StarCount,
 				})
 			}
 
@@ -67,7 +63,7 @@ func Home(r *http.Request, data *HomeData) html.Node {
 			Title:       "No repositories yet",
 			Description: "Sign up to create and manage your repositories.",
 			ActionText:  "Create repository",
-			ActionHref:  "/sign-up",
+			ActionHref:  "/auth/sign-up",
 			ShowAction:  true,
 		})
 	}
@@ -75,7 +71,7 @@ func Home(r *http.Request, data *HomeData) html.Node {
 	return layouts.Main(r,
 		"Hypercode: An open-source alternative to GitHub",
 		html.Main(
-			attr.Class("w-full mx-auto max-w-6xl px-4 py-8"),
+			attr.Class("w-full mx-auto max-w-7xl px-4 py-8"),
 			mainContent,
 		),
 	)

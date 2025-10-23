@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -27,6 +28,7 @@ type gitController struct {
 	orgs          repositories.OrganizationsRepository
 	repos         repositories.RepositoriesRepository
 	contributors  repositories.ContributorsRepository
+	accessTokens  repositories.AccessTokensRepository
 	authService   services.AuthService
 	reposBasePath string
 }
@@ -36,6 +38,7 @@ func NewGitController(
 	orgs repositories.OrganizationsRepository,
 	repos repositories.RepositoriesRepository,
 	contributors repositories.ContributorsRepository,
+	accessTokens repositories.AccessTokensRepository,
 	authService services.AuthService,
 	reposBasePath string,
 ) GitController {
@@ -44,6 +47,7 @@ func NewGitController(
 		orgs:          orgs,
 		repos:         repos,
 		contributors:  contributors,
+		accessTokens:  accessTokens,
 		authService:   authService,
 		reposBasePath: reposBasePath,
 	}
@@ -127,12 +131,22 @@ func (c *gitController) handleGitOperation(w http.ResponseWriter, r *http.Reques
 				return nil
 			}
 
-			valid := c.authService.CheckPassword(password, authenticatedUser.Password)
-			slog.Info("password check", "username", username, "valid", valid)
+			// Try password authentication first
+			valid := authenticatedUser.Password != nil && c.authService.CheckPassword(password, *authenticatedUser.Password)
+
+			// If password auth fails, try access token authentication
+			if !valid {
+				valid, err = c.authenticateWithAccessToken(authenticatedUser.ID, password)
+				if err != nil {
+					slog.Warn("token authentication error", "username", username, "error", err)
+				}
+			}
+
+			slog.Info("authentication check", "username", username, "valid", valid)
 			if !valid {
 				w.Header().Set("WWW-Authenticate", `Basic realm="Git Repository"`)
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
-				slog.Warn("invalid password", "username", username)
+				slog.Warn("invalid password or token", "username", username)
 				return nil
 			}
 
@@ -252,4 +266,31 @@ func (c *gitController) handleGitOperation(w http.ResponseWriter, r *http.Reques
 	}
 
 	return nil
+}
+
+// authenticateWithAccessToken checks if the provided token is valid for the user
+func (c *gitController) authenticateWithAccessToken(userID int64, rawToken string) (bool, error) {
+	// Hash the provided token the same way we did when storing it
+	hash := sha256.Sum256([]byte(rawToken))
+	tokenHash := fmt.Sprintf("%x", hash)
+
+	// Find the token
+	token, err := c.accessTokens.FindByTokenHash(tokenHash)
+	if err != nil {
+		return false, err
+	}
+
+	if token == nil {
+		return false, nil
+	}
+
+	// Verify the token belongs to the user
+	if token.UserID != userID {
+		return false, nil
+	}
+
+	// Update last used timestamp (ignore errors as this is not critical)
+	_ = c.accessTokens.UpdateLastUsed(token.ID)
+
+	return true, nil
 }

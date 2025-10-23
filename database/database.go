@@ -40,15 +40,36 @@ func New(dsn string) (*DB, error) {
 
 func runMigrations(db *sql.DB) error {
 	// Check if default_branch column exists in repositories table
-	var columnExists bool
+	var defaultBranchExists bool
 	row := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('repositories') WHERE name='default_branch'")
-	if err := row.Scan(&columnExists); err != nil {
+	if err := row.Scan(&defaultBranchExists); err != nil {
 		return err
 	}
 
 	// Add default_branch column if it doesn't exist
-	if !columnExists {
+	if !defaultBranchExists {
 		_, err := db.Exec("ALTER TABLE repositories ADD COLUMN default_branch TEXT NOT NULL DEFAULT 'main'")
+		if err != nil {
+			return err
+		}
+	}
+
+	// Check if github_user_id column exists in users table
+	var githubUserIDExists bool
+	row = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('users') WHERE name='github_user_id'")
+	if err := row.Scan(&githubUserIDExists); err != nil {
+		return err
+	}
+
+	// Add github_user_id column if it doesn't exist
+	if !githubUserIDExists {
+		_, err := db.Exec("ALTER TABLE users ADD COLUMN github_user_id TEXT")
+		if err != nil {
+			return err
+		}
+
+		// Create unique index on github_user_id
+		_, err = db.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_github_user_id ON users(github_user_id) WHERE github_user_id IS NOT NULL")
 		if err != nil {
 			return err
 		}

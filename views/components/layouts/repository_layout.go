@@ -23,6 +23,8 @@ type repositoryLayout struct {
 	starCount     int64
 	hasStarred    bool
 	defaultBranch string
+	cloneURL      string
+	repositoryURL string
 }
 
 type RepositoryLayoutOptions struct {
@@ -34,6 +36,8 @@ type RepositoryLayoutOptions struct {
 	StarCount     int64
 	HasStarred    bool
 	DefaultBranch string
+	CloneURL      string
+	RepositoryURL string
 }
 
 func Repository(r *http.Request, title string, opts RepositoryLayoutOptions, children ...html.Node) repositoryLayout {
@@ -49,6 +53,8 @@ func Repository(r *http.Request, title string, opts RepositoryLayoutOptions, chi
 		starCount:     opts.StarCount,
 		hasStarred:    opts.HasStarred,
 		defaultBranch: opts.DefaultBranch,
+		cloneURL:      opts.CloneURL,
+		repositoryURL: opts.RepositoryURL,
 	}
 }
 
@@ -65,6 +71,8 @@ func (b repositoryLayout) Render(w http.ResponseWriter, r *http.Request) error {
 			StarCount:     b.starCount,
 			HasStarred:    b.hasStarred,
 			DefaultBranch: b.defaultBranch,
+			CloneURL:      b.cloneURL,
+			RepositoryURL: b.repositoryURL,
 		}),
 	}
 	bodyChildren = append(bodyChildren, b.children...)
@@ -73,6 +81,12 @@ func (b repositoryLayout) Render(w http.ResponseWriter, r *http.Request) error {
 	if flash != nil && flash.Type == services.FlashCelebration {
 		bodyChildren = append(bodyChildren, components.Celebration())
 	}
+
+	// Add toaster container for toast notifications
+	bodyChildren = append(bodyChildren, html.Div(
+		attr.Id("toaster"),
+		attr.Class("toaster"),
+	))
 
 	doc := html.Document(
 		html.HTML(

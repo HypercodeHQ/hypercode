@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/hyperstitieux/hypercode/database/models"
@@ -10,18 +11,29 @@ import (
 	"github.com/hyperstitieux/hypercode/views/components/ui"
 )
 
+type CollaboratorData struct {
+	Contributor *models.Contributor
+	Username    string
+}
+
 type RepositorySettingsData struct {
-	User               *models.User
-	Repository         *models.Repository
-	OwnerUsername      string
-	Name               string
-	DefaultBranch      string
-	Visibility         string
-	NameError          string
-	DefaultBranchError string
-	VisibilityError    string
-	GeneralSuccess     string
-	DangerZoneSuccess  string
+	User                *models.User
+	Repository          *models.Repository
+	OwnerUsername       string
+	Name                string
+	DefaultBranch       string
+	Visibility          string
+	NameError           string
+	DefaultBranchError  string
+	VisibilityError     string
+	GeneralSuccess      string
+	DangerZoneSuccess   string
+	StarCount           int64
+	HasStarred          bool
+	Collaborators       []CollaboratorData
+	CollaboratorError   string
+	CollaboratorSuccess string
+	NewCollaborator     string
 }
 
 func RepositorySettings(r *http.Request, data *RepositorySettingsData) html.Node {
@@ -42,6 +54,9 @@ func RepositorySettings(r *http.Request, data *RepositorySettingsData) html.Node
 		}
 	}
 
+	cloneURL := "https://" + r.Host + "/" + data.OwnerUsername + "/" + data.Repository.Name
+	repositoryURL := cloneURL
+
 	return layouts.Repository(r,
 		"Settings - "+data.OwnerUsername+"/"+data.Repository.Name,
 		layouts.RepositoryLayoutOptions{
@@ -50,12 +65,14 @@ func RepositorySettings(r *http.Request, data *RepositorySettingsData) html.Node
 			CurrentTab:    "settings",
 			IsPublic:      data.Repository.Visibility == "public",
 			ShowSettings:  true,
-			StarCount:     0,
-			HasStarred:    false,
+			StarCount:     data.StarCount,
+			HasStarred:    data.HasStarred,
 			DefaultBranch: data.Repository.DefaultBranch,
+			CloneURL:      cloneURL,
+			RepositoryURL: repositoryURL,
 		},
 		html.Main(
-			attr.Class("w-full mx-auto max-w-6xl space-y-6 py-8 px-4"),
+			attr.Class("w-full mx-auto max-w-7xl space-y-6 py-8 px-4"),
 			html.H1(
 				attr.Class("font-semibold text-2xl mb-6"),
 				html.Text("Repository Settings"),
@@ -176,6 +193,167 @@ func RepositorySettings(r *http.Request, data *RepositorySettingsData) html.Node
 				),
 			}),
 
+			// Collaborators Card
+			ui.Card(ui.CardProps{
+				Title:       "Collaborators",
+				Description: "Manage repository access",
+				Content: html.Div(
+					attr.Class("space-y-4"),
+					html.If(data.CollaboratorSuccess != "", html.Div(
+						attr.Class("p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-sm"),
+						html.Text(data.CollaboratorSuccess),
+					)),
+					html.If(data.CollaboratorError != "", html.Div(
+						attr.Class("p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 text-sm"),
+						html.Text(data.CollaboratorError),
+					)),
+					// Collaborators List
+					html.If(len(data.Collaborators) > 0, html.Div(
+						attr.Class("space-y-2"),
+						html.H3(
+							attr.Class("text-sm font-medium mb-3"),
+							html.Text("Current Collaborators"),
+						),
+						html.For(data.Collaborators, func(collab CollaboratorData) html.Node {
+							return html.Div(
+								attr.Class("flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg bg-white gap-4"),
+								html.Div(
+									attr.Class("flex items-center gap-3"),
+									html.Div(
+										attr.Class("flex items-center justify-center w-10 h-10 rounded-full bg-muted"),
+										ui.SVGIcon(ui.IconUser, "h-5 w-5 text-muted-foreground"),
+									),
+									html.Div(
+										attr.Class("flex flex-col"),
+										html.Element("span",
+											attr.Class("font-medium text-sm"),
+											html.Text(collab.Username),
+										),
+										html.Element("span",
+											attr.Class("text-xs text-muted-foreground flex items-center gap-1"),
+											getRoleIcon(collab.Contributor.Role),
+										html.Element("span",
+											attr.Class("capitalize"),
+											html.Text(collab.Contributor.Role+" access"),
+										),
+										),
+									),
+								),
+								html.Div(
+									attr.Class("flex items-center gap-2 sm:ml-auto"),
+									// Update Role Form
+									html.Form(
+										attr.Method("POST"),
+										attr.Action("/"+data.OwnerUsername+"/"+data.Repository.Name+"/settings/collaborators/update"),
+										attr.Class("flex items-center gap-2"),
+										html.Input(
+											attr.Type("hidden"),
+											attr.Name("user_id"),
+											attr.Value(fmt.Sprintf("%d", collab.Contributor.UserID)),
+										),
+										html.Element("select",
+											attr.Name("role"),
+											attr.Class("input text-sm py-1.5 px-3 w-28"),
+											html.Element("option",
+												attr.Value("read"),
+												html.If(collab.Contributor.Role == "read", attr.Selected(true)),
+												html.Text("Read"),
+											),
+											html.Element("option",
+												attr.Value("write"),
+												html.If(collab.Contributor.Role == "write", attr.Selected(true)),
+												html.Text("Write"),
+											),
+											html.Element("option",
+												attr.Value("admin"),
+												html.If(collab.Contributor.Role == "admin", attr.Selected(true)),
+												html.Text("Admin"),
+											),
+										),
+										ui.Button(
+											ui.ButtonProps{
+												Variant: ui.ButtonOutline,
+												Type:    "submit",
+											},
+											html.Text("Update"),
+										),
+									),
+									// Remove Collaborator Form
+									html.Form(
+										attr.Method("POST"),
+										attr.Action("/"+data.OwnerUsername+"/"+data.Repository.Name+"/settings/collaborators/remove"),
+										html.Input(
+											attr.Type("hidden"),
+											attr.Name("user_id"),
+											attr.Value(fmt.Sprintf("%d", collab.Contributor.UserID)),
+										),
+										ui.Button(
+											ui.ButtonProps{
+												Variant: ui.ButtonDestructive,
+												Type:    "submit",
+											},
+											html.Text("Remove"),
+										),
+									),
+								),
+							)
+						}),
+					)),
+					html.If(len(data.Collaborators) == 0, html.Div(
+						attr.Class("text-sm text-muted-foreground text-center py-8 border border-dashed rounded-lg"),
+						html.Text("No collaborators yet. Add collaborators to give them access to this repository."),
+					)),
+					// Add Collaborator Form
+					html.Div(
+						attr.Class("mt-6 pt-6 border-t"),
+						html.H3(
+							attr.Class("text-sm font-medium mb-4"),
+							html.Text("Add Collaborator"),
+						),
+						html.Form(
+							attr.Method("POST"),
+							attr.Action("/"+data.OwnerUsername+"/"+data.Repository.Name+"/settings/collaborators/add"),
+							attr.Class("space-y-4"),
+							html.Div(
+								attr.Class("grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-4 justify-end items-end"),
+								ui.FormField(ui.FormFieldProps{
+									Label:       "Username",
+									Id:          "collaborator-username",
+									Name:        "username",
+									Type:        "text",
+									Placeholder: "Username",
+									Icon:        ui.IconUser,
+									Required:    true,
+									Value:       data.NewCollaborator,
+								}),
+								ui.Select(ui.SelectProps{
+									Id:       "collaborator-role",
+									Name:     "role",
+									Label:    "Role",
+									Required: true,
+									Class:    "sm:w-full !mb-0",
+									Options: []ui.SelectOption{
+										{Value: "read", Label: "Read", Selected: true, Icon: ui.IconEye},
+										{Value: "write", Label: "Write", Icon: ui.IconEdit},
+										{Value: "admin", Label: "Admin", Icon: ui.IconShield},
+									},
+								}),
+								html.Div(
+									attr.Class("flex items-end"),
+									ui.Button(
+										ui.ButtonProps{
+											Variant: ui.ButtonPrimary,
+											Type:    "submit",
+										},
+										html.Text("Add"),
+									),
+								),
+							),
+						),
+					),
+				),
+			}),
+
 			// Danger Zone Card
 			ui.Card(ui.CardProps{
 				Title:       "Danger Zone",
@@ -253,4 +431,17 @@ func RepositorySettings(r *http.Request, data *RepositorySettingsData) html.Node
 			),
 		),
 	)
+}
+
+func getRoleIcon(role string) html.Node {
+	switch role {
+	case "read":
+		return ui.SVGIcon(ui.IconEye, "h-3 w-3")
+	case "write":
+		return ui.SVGIcon(ui.IconEdit, "h-3 w-3")
+	case "admin":
+		return ui.SVGIcon(ui.IconShield, "h-3 w-3")
+	default:
+		return html.Group()
+	}
 }

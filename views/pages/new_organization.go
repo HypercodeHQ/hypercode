@@ -63,7 +63,7 @@ func NewOrganization(r *http.Request, data *NewOrganizationData) html.Node {
 					html.Text("Create organization"),
 				),
 			),
-			html.Element("script",
+			html.Script(
 				html.Text(`
 						const usernameInput = document.getElementById("username");
 						usernameInput.addEventListener("input", (e) => {

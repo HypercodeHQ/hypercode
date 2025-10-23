@@ -12,6 +12,7 @@ type StarsRepository interface {
 	Delete(repositoryID, userID int64) error
 	FindByUserAndRepository(repositoryID, userID int64) (*models.Star, error)
 	CountByRepository(repositoryID int64) (int64, error)
+	FindStarredRepositoriesByUser(userID int64) ([]*models.Repository, error)
 }
 
 type starsRepository struct {
@@ -97,4 +98,42 @@ func (r *starsRepository) CountByRepository(repositoryID int64) (int64, error) {
 	}
 
 	return count, nil
+}
+
+func (r *starsRepository) FindStarredRepositoriesByUser(userID int64) ([]*models.Repository, error) {
+	query := `
+		SELECT r.id, r.name, r.description, r.default_branch, r.visibility, r.owner_user_id, r.owner_org_id, r.created_at, r.updated_at
+		FROM repositories r
+		INNER JOIN stars s ON s.repository_id = r.id
+		WHERE s.user_id = ?
+		ORDER BY s.created_at DESC
+	`
+
+	rows, err := r.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var repositories []*models.Repository
+	for rows.Next() {
+		repo := &models.Repository{}
+		err := rows.Scan(
+			&repo.ID,
+			&repo.Name,
+			&repo.Description,
+			&repo.DefaultBranch,
+			&repo.Visibility,
+			&repo.OwnerUserID,
+			&repo.OwnerOrgID,
+			&repo.CreatedAt,
+			&repo.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		repositories = append(repositories, repo)
+	}
+
+	return repositories, nil
 }

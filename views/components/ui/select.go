@@ -9,6 +9,7 @@ type SelectOption struct {
 	Value    string
 	Label    string
 	Selected bool
+	Icon     Icon
 }
 
 type SelectProps struct {
@@ -25,16 +26,19 @@ func Select(props SelectProps) html.Node {
 	// Find selected option
 	selectedLabel := ""
 	selectedValue := ""
+	selectedIcon := Icon("")
 	for _, opt := range props.Options {
 		if opt.Selected {
 			selectedLabel = opt.Label
 			selectedValue = opt.Value
+			selectedIcon = opt.Icon
 			break
 		}
 	}
 	if selectedLabel == "" && len(props.Options) > 0 {
 		selectedLabel = props.Options[0].Label
 		selectedValue = props.Options[0].Value
+		selectedIcon = props.Options[0].Icon
 	}
 
 	selectId := props.Id
@@ -46,12 +50,6 @@ func Select(props SelectProps) html.Node {
 		attr.Class("label"),
 		html.Text(props.Label),
 	}
-	if props.Required {
-		labelAttrs = append(labelAttrs, html.Element("span",
-			attr.Class("text-destructive ml-0.5"),
-			html.Text("*"),
-		))
-	}
 
 	wrapperClass := "space-y-2"
 	if props.Class != "" {
@@ -62,7 +60,7 @@ func Select(props SelectProps) html.Node {
 		attr.Class(wrapperClass),
 		html.Label(labelAttrs...),
 		html.Div(
-			attr.Class("select"),
+			attr.Class("select !mb-0"),
 			// Hidden input for form submission
 			html.Input(
 				attr.Type("hidden"),
@@ -78,9 +76,17 @@ func Select(props SelectProps) html.Node {
 				attr.AriaHaspopup("listbox"),
 				attr.AriaControls(listboxId),
 				attr.AriaExpanded("false"),
-				html.Element("span",
-					attr.Id(selectId+"-value"),
-					html.Text(selectedLabel),
+				html.Div(
+					attr.Class("flex items-center gap-2"),
+					html.Element("span",
+						attr.Id(selectId+"-icon"),
+						attr.Class("flex items-center"),
+						html.If(selectedIcon != "", SVGIcon(selectedIcon, "h-4 w-4")),
+					),
+					html.Element("span",
+						attr.Id(selectId+"-value"),
+						html.Text(selectedLabel),
+					),
 				),
 				SVGIcon(IconChevronDown, "h-4 w-4 opacity-50"),
 			),
@@ -98,8 +104,10 @@ func Select(props SelectProps) html.Node {
 						return html.Div(
 							attr.Role("option"),
 							attr.Attribute{Key: "data-value", Value: option.Value},
+							html.If(option.Icon != "", attr.Attribute{Key: "data-icon", Value: string(option.Icon)}),
 							html.If(option.Selected, attr.Attribute{Key: "aria-selected", Value: "true"}),
-							attr.Class("cursor-pointer"),
+							attr.Class("cursor-pointer flex items-center gap-2"),
+							html.If(option.Icon != "", SVGIcon(option.Icon, "h-4 w-4")),
 							html.Text(option.Label),
 						)
 					}),
@@ -124,6 +132,7 @@ func Select(props SelectProps) html.Node {
 					const listbox = select.querySelector('[role="listbox"]');
 					const hiddenInput = select.querySelector('#' + selectId);
 					const valueSpan = select.querySelector('#' + selectId + '-value');
+					const iconSpan = select.querySelector('#' + selectId + '-icon');
 
 					if (!trigger || !popover || !listbox || !hiddenInput || !valueSpan) return;
 
@@ -136,13 +145,28 @@ func Select(props SelectProps) html.Node {
 					listbox.querySelectorAll('[role="option"]').forEach(option => {
 						option.addEventListener('click', () => {
 							const value = option.getAttribute('data-value');
-							const label = option.textContent;
+							const optionIcon = option.querySelector('svg');
+							const textContent = Array.from(option.childNodes)
+								.filter(node => node.nodeType === Node.TEXT_NODE)
+								.map(node => node.textContent.trim())
+								.join('');
 
 							// Update hidden input
 							hiddenInput.value = value;
 
 							// Update display
-							valueSpan.textContent = label;
+							valueSpan.textContent = textContent;
+
+							// Update icon
+							if (iconSpan) {
+								if (optionIcon) {
+									const clonedIcon = optionIcon.cloneNode(true);
+									iconSpan.innerHTML = '';
+									iconSpan.appendChild(clonedIcon);
+								} else {
+									iconSpan.innerHTML = '';
+								}
+							}
 
 							// Update aria-selected
 							listbox.querySelectorAll('[role="option"]').forEach(opt => {

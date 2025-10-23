@@ -5,3 +5,4 @@ tmp/
 build-errors.log
 node_modules/
 repos/
+.env

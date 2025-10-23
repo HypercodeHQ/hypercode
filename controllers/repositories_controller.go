@@ -12,6 +12,7 @@ import (
 	"github.com/hyperstitieux/hypercode/database/models"
 	"github.com/hyperstitieux/hypercode/database/repositories"
 	"github.com/hyperstitieux/hypercode/httperror"
+	custommiddleware "github.com/hyperstitieux/hypercode/middleware"
 	"github.com/hyperstitieux/hypercode/services"
 	"github.com/hyperstitieux/hypercode/views/pages"
 )
@@ -26,6 +27,9 @@ type RepositoriesController interface {
 	Delete(w http.ResponseWriter, r *http.Request) error
 	Star(w http.ResponseWriter, r *http.Request) error
 	Unstar(w http.ResponseWriter, r *http.Request) error
+	AddCollaborator(w http.ResponseWriter, r *http.Request) error
+	RemoveCollaborator(w http.ResponseWriter, r *http.Request) error
+	UpdateCollaboratorRole(w http.ResponseWriter, r *http.Request) error
 }
 
 type repositoriesController struct {
@@ -64,12 +68,12 @@ func NewRepositoriesController(
 func (c *repositoriesController) Create(w http.ResponseWriter, r *http.Request) error {
 	user, err := c.authService.GetUserFromCookie(r)
 	if err != nil {
-		http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
 		return nil
 	}
 
 	if user == nil {
-		http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
 		return nil
 	}
 
@@ -91,7 +95,7 @@ func (c *repositoriesController) Create(w http.ResponseWriter, r *http.Request) 
 func (c *repositoriesController) Store(w http.ResponseWriter, r *http.Request) error {
 	user, err := c.authService.GetUserFromCookie(r)
 	if err != nil {
-		http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
 		return nil
 	}
 
@@ -478,10 +482,39 @@ func (c *repositoriesController) Settings(w http.ResponseWriter, r *http.Request
 		return httperror.Forbidden("access denied")
 	}
 
+	// Get star information
+	starCount, _ := c.stars.CountByRepository(repo.ID)
+	hasStarred := false
+	if user != nil {
+		star, _ := c.stars.FindByUserAndRepository(repo.ID, user.ID)
+		hasStarred = star != nil
+	}
+
+	// Get collaborators
+	contributors, err := c.contributors.FindAllByRepository(repo.ID)
+	if err != nil {
+		slog.Error("failed to fetch contributors", "error", err)
+		contributors = []*models.Contributor{}
+	}
+
+	collaborators := make([]pages.CollaboratorData, 0, len(contributors))
+	for _, contrib := range contributors {
+		collabUser, err := c.users.FindByID(contrib.UserID)
+		if err == nil && collabUser != nil {
+			collaborators = append(collaborators, pages.CollaboratorData{
+				Contributor: contrib,
+				Username:    collabUser.Username,
+			})
+		}
+	}
+
 	return pages.RepositorySettings(r, &pages.RepositorySettingsData{
 		User:          user,
 		Repository:    repo,
 		OwnerUsername: owner,
+		StarCount:     starCount,
+		HasStarred:    hasStarred,
+		Collaborators: collaborators,
 	}).Render(w, r)
 }
 
@@ -526,6 +559,14 @@ func (c *repositoriesController) UpdateSettings(w http.ResponseWriter, r *http.R
 	defaultBranch := r.FormValue("default_branch")
 	visibility := r.FormValue("visibility")
 
+	// Get star information
+	starCount, _ := c.stars.CountByRepository(repo.ID)
+	hasStarred := false
+	if user != nil {
+		star, _ := c.stars.FindByUserAndRepository(repo.ID, user.ID)
+		hasStarred = star != nil
+	}
+
 	settingsData := &pages.RepositorySettingsData{
 		User:          user,
 		Repository:    repo,
@@ -533,6 +574,8 @@ func (c *repositoriesController) UpdateSettings(w http.ResponseWriter, r *http.R
 		Name:          name,
 		DefaultBranch: defaultBranch,
 		Visibility:    visibility,
+		StarCount:     starCount,
+		HasStarred:    hasStarred,
 	}
 
 	hasErrors := false
@@ -725,5 +768,182 @@ func (c *repositoriesController) Unstar(w http.ResponseWriter, r *http.Request) 
 		referer = fmt.Sprintf("/%s/%s", owner, repoName)
 	}
 	http.Redirect(w, r, referer, http.StatusSeeOther)
+	return nil
+}
+
+func (c *repositoriesController) AddCollaborator(w http.ResponseWriter, r *http.Request) error {
+	owner := chi.URLParam(r, "owner")
+	repoName := chi.URLParam(r, "repo")
+
+	repo, err := c.repos.FindByOwnerAndName(owner, repoName)
+	if err != nil || repo == nil {
+		return httperror.NotFound("repository not found")
+	}
+
+	user := custommiddleware.GetUserFromContext(r)
+	if user == nil {
+		return httperror.Unauthorized("authentication required")
+	}
+
+	// Check if user can manage the repository
+	canManage := false
+	if repo.OwnerUserID != nil && *repo.OwnerUserID == user.ID {
+		canManage = true
+	} else {
+		contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, user.ID)
+		if err == nil && contributor != nil && contributor.Role == "admin" {
+			canManage = true
+		}
+	}
+
+	if !canManage {
+		return httperror.Forbidden("access denied")
+	}
+
+	if err := r.ParseForm(); err != nil {
+		return httperror.BadRequest("invalid form data")
+	}
+
+	username := r.FormValue("username")
+	role := r.FormValue("role")
+
+	if username == "" {
+		http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings", owner, repoName), http.StatusSeeOther)
+		return nil
+	}
+
+	// Find the user to add
+	collabUser, err := c.users.FindByUsername(username)
+	if err != nil || collabUser == nil {
+		http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings?collaborator_error=User+not+found", owner, repoName), http.StatusSeeOther)
+		return nil
+	}
+
+	// Check if user is already a collaborator
+	existing, _ := c.contributors.FindByRepositoryAndUser(repo.ID, collabUser.ID)
+	if existing != nil {
+		http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings?collaborator_error=User+is+already+a+collaborator", owner, repoName), http.StatusSeeOther)
+		return nil
+	}
+
+	// Add collaborator
+	_, err = c.contributors.Create(repo.ID, collabUser.ID, role)
+	if err != nil {
+		slog.Error("failed to add collaborator", "error", err)
+		http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings?collaborator_error=Failed+to+add+collaborator", owner, repoName), http.StatusSeeOther)
+		return nil
+	}
+
+	slog.Info("collaborator added", "repo", repoName, "username", username, "role", role)
+	http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings?collaborator_success=Collaborator+added+successfully", owner, repoName), http.StatusSeeOther)
+	return nil
+}
+
+func (c *repositoriesController) RemoveCollaborator(w http.ResponseWriter, r *http.Request) error {
+	owner := chi.URLParam(r, "owner")
+	repoName := chi.URLParam(r, "repo")
+
+	repo, err := c.repos.FindByOwnerAndName(owner, repoName)
+	if err != nil || repo == nil {
+		return httperror.NotFound("repository not found")
+	}
+
+	user := custommiddleware.GetUserFromContext(r)
+	if user == nil {
+		return httperror.Unauthorized("authentication required")
+	}
+
+	// Check if user can manage the repository
+	canManage := false
+	if repo.OwnerUserID != nil && *repo.OwnerUserID == user.ID {
+		canManage = true
+	} else {
+		contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, user.ID)
+		if err == nil && contributor != nil && contributor.Role == "admin" {
+			canManage = true
+		}
+	}
+
+	if !canManage {
+		return httperror.Forbidden("access denied")
+	}
+
+	if err := r.ParseForm(); err != nil {
+		return httperror.BadRequest("invalid form data")
+	}
+
+	userIDStr := r.FormValue("user_id")
+	var userID int64
+	fmt.Sscanf(userIDStr, "%d", &userID)
+
+	// Remove collaborator
+	err = c.contributors.DeleteByRepositoryAndUser(repo.ID, userID)
+	if err != nil {
+		slog.Error("failed to remove collaborator", "error", err)
+		http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings?collaborator_error=Failed+to+remove+collaborator", owner, repoName), http.StatusSeeOther)
+		return nil
+	}
+
+	slog.Info("collaborator removed", "repo", repoName, "user_id", userID)
+	http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings?collaborator_success=Collaborator+removed+successfully", owner, repoName), http.StatusSeeOther)
+	return nil
+}
+
+func (c *repositoriesController) UpdateCollaboratorRole(w http.ResponseWriter, r *http.Request) error {
+	owner := chi.URLParam(r, "owner")
+	repoName := chi.URLParam(r, "repo")
+
+	repo, err := c.repos.FindByOwnerAndName(owner, repoName)
+	if err != nil || repo == nil {
+		return httperror.NotFound("repository not found")
+	}
+
+	user := custommiddleware.GetUserFromContext(r)
+	if user == nil {
+		return httperror.Unauthorized("authentication required")
+	}
+
+	// Check if user can manage the repository
+	canManage := false
+	if repo.OwnerUserID != nil && *repo.OwnerUserID == user.ID {
+		canManage = true
+	} else {
+		contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, user.ID)
+		if err == nil && contributor != nil && contributor.Role == "admin" {
+			canManage = true
+		}
+	}
+
+	if !canManage {
+		return httperror.Forbidden("access denied")
+	}
+
+	if err := r.ParseForm(); err != nil {
+		return httperror.BadRequest("invalid form data")
+	}
+
+	userIDStr := r.FormValue("user_id")
+	role := r.FormValue("role")
+
+	var userID int64
+	fmt.Sscanf(userIDStr, "%d", &userID)
+
+	// Find the contributor
+	contributor, err := c.contributors.FindByRepositoryAndUser(repo.ID, userID)
+	if err != nil || contributor == nil {
+		http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings?collaborator_error=Collaborator+not+found", owner, repoName), http.StatusSeeOther)
+		return nil
+	}
+
+	// Update role
+	err = c.contributors.UpdateRole(contributor.ID, role)
+	if err != nil {
+		slog.Error("failed to update collaborator role", "error", err)
+		http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings?collaborator_error=Failed+to+update+role", owner, repoName), http.StatusSeeOther)
+		return nil
+	}
+
+	slog.Info("collaborator role updated", "repo", repoName, "user_id", userID, "new_role", role)
+	http.Redirect(w, r, fmt.Sprintf("/%s/%s/settings?collaborator_success=Role+updated+successfully", owner, repoName), http.StatusSeeOther)
 	return nil
 }

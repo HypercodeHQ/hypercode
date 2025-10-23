@@ -26,8 +26,10 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 		data = &ShowRepositoryData{}
 	}
 
+	repositoryURL := "https://" + r.Host + "/" + data.OwnerUsername + "/" + data.Repository.Name
+
 	return layouts.Repository(r,
-		data.OwnerUsername+"/"+data.Repository.Name+" - Hypercode",
+		"Overview - "+data.OwnerUsername+"/"+data.Repository.Name,
 		layouts.RepositoryLayoutOptions{
 			OwnerUsername: data.OwnerUsername,
 			RepoName:      data.Repository.Name,
@@ -37,9 +39,15 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 			StarCount:     data.StarCount,
 			HasStarred:    data.HasStarred,
 			DefaultBranch: data.Repository.DefaultBranch,
+			CloneURL:      data.CloneURL,
+			RepositoryURL: repositoryURL,
 		},
 		html.Main(
-			attr.Class("container mx-auto px-4 py-8 max-w-6xl"),
+			attr.Class("container mx-auto px-4 py-8 max-w-7xl"),
+			html.H1(
+				attr.Class("font-semibold text-2xl mb-6"),
+				html.Text("Overview"),
+			),
 			html.Div(
 				attr.Class("border rounded-sm p-6 bg-card"),
 				html.Label(
@@ -56,7 +64,7 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 						attr.Id("clone-url"),
 						attr.Class("input font-mono text-sm flex-1"),
 					),
-					html.Element("button",
+					html.Button(
 						attr.Onclick("copyCloneURL()"),
 						attr.Id("copy-button"),
 						attr.Class("btn-icon-outline cursor-pointer"),
@@ -67,7 +75,7 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 					),
 				),
 			),
-			html.Element("script",
+			html.Script(
 				html.Text(`function copyCloneURL() {
 	const input = document.getElementById("clone-url");
 	const cloneCommand = input.value;
@@ -106,10 +114,21 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 			copyIcon.classList.remove("hidden");
 			checkIcon.classList.add("hidden");
 		}, 2000);
+
+		// Show toast notification
+		document.dispatchEvent(new CustomEvent('basecoat:toast', {
+			detail: {
+				config: {
+					category: 'success',
+					title: 'Clone command copied!',
+					description: 'The clone command has been copied to your clipboard.',
+					duration: 2000
+				}
+			}
+		}));
 	}
 }`),
 			),
 		),
 	)
 }
-

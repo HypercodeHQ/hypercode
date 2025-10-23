@@ -31,7 +31,16 @@ func RepositoryTabs(props RepositoryTabsProps) html.Node {
 			"tree",
 			props.CurrentTab,
 			IconCode,
-			"Sources",
+			"Code",
+		),
+		repositoryTab(
+			props.OwnerUsername,
+			props.RepoName,
+			props.DefaultBranch,
+			"tickets",
+			props.CurrentTab,
+			IconCircle,
+			"Tickets",
 		),
 	}
 
@@ -120,10 +129,37 @@ func smallSVGIcon(icon Icon, class string) html.Node {
 			html.Element("polyline", attr.Points("16 18 22 12 16 6")),
 			html.Element("polyline", attr.Points("8 6 2 12 8 18")),
 		}
+	case IconRepository:
+		paths = []html.Node{
+			html.Element("path", attr.D("M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20")),
+			html.Element("path", attr.D("M8 7h6")),
+			html.Element("path", attr.D("M8 11h8")),
+		}
+	case IconUser:
+		paths = []html.Node{
+			html.Element("path", attr.D("M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2")),
+			html.Element("circle", attr.Cx("12"), attr.Cy("7"), attr.R("4")),
+		}
+	case IconUsers:
+		paths = []html.Node{
+			html.Element("path", attr.D("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2")),
+			html.Element("circle", attr.Cx("9"), attr.Cy("7"), attr.R("4")),
+			html.Element("path", attr.D("M22 21v-2a4 4 0 0 0-3-3.87")),
+			html.Element("path", attr.D("M16 3.13a4 4 0 0 1 0 7.75")),
+		}
 	case IconSettings:
 		paths = []html.Node{
 			html.Element("path", attr.D("M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z")),
 			html.Element("circle", attr.Cx("12"), attr.Cy("12"), attr.R("3")),
+		}
+	case IconStar:
+		paths = []html.Node{
+			html.Element("polygon", attr.Points("12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2")),
+		}
+	case IconCircle:
+		paths = []html.Node{
+			html.Element("circle", attr.Cx("12"), attr.Cy("12"), attr.R("10")),
+			html.Element("circle", attr.Cx("12"), attr.Cy("12"), attr.R("1"), attr.Fill("currentColor")),
 		}
 	}
 

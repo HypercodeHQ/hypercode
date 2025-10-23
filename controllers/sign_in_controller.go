@@ -50,7 +50,7 @@ func (c *signInController) Handle(w http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 
-	if user == nil || !c.authService.CheckPassword(password, user.Password) {
+	if user == nil || user.Password == nil || !c.authService.CheckPassword(password, *user.Password) {
 		return pages.SignIn(r, &pages.SignInData{
 			Error: "Invalid email or password",
 		}).Render(w, r)

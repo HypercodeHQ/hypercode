@@ -36,8 +36,16 @@ func Head(title string) html.Node {
 			attr.Rel("stylesheet"),
 			attr.Href("/styles.css"),
 		),
-		html.Element("script",
+		html.Script(
 			attr.Src("/dropdown.js"),
+			attr.Defer(),
+		),
+		html.Script(
+			attr.Src("https://cdn.jsdelivr.net/npm/basecoat-css@0.3.2/dist/js/basecoat.min.js"),
+			attr.Defer(),
+		),
+		html.Script(
+			attr.Src("https://cdn.jsdelivr.net/npm/basecoat-css@0.3.2/dist/js/toast.min.js"),
 			attr.Defer(),
 		),
 	)

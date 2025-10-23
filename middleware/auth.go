@@ -41,7 +41,7 @@ func Auth(authService services.AuthService) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user, err := authService.GetUserFromCookie(r)
 			if err != nil || user == nil {
-				http.Redirect(w, r, "/sign-in", http.StatusSeeOther)
+				http.Redirect(w, r, "/auth/sign-in", http.StatusSeeOther)
 				return
 			}
 			ctx := context.WithValue(r.Context(), ContextKeyUser, user)

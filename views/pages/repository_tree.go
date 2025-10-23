@@ -32,8 +32,11 @@ func RepositoryTree(r *http.Request, data *RepositoryTreeData) html.Node {
 		data = &RepositoryTreeData{}
 	}
 
+	cloneURL := "https://" + r.Host + "/" + data.OwnerUsername + "/" + data.Repository.Name
+	repositoryURL := cloneURL
+
 	return layouts.Repository(r,
-		data.OwnerUsername+"/"+data.Repository.Name+" - Hypercode",
+		"Code - "+data.OwnerUsername+"/"+data.Repository.Name,
 		layouts.RepositoryLayoutOptions{
 			OwnerUsername: data.OwnerUsername,
 			RepoName:      data.Repository.Name,
@@ -43,9 +46,15 @@ func RepositoryTree(r *http.Request, data *RepositoryTreeData) html.Node {
 			StarCount:     data.StarCount,
 			HasStarred:    data.HasStarred,
 			DefaultBranch: data.Repository.DefaultBranch,
+			CloneURL:      cloneURL,
+			RepositoryURL: repositoryURL,
 		},
 		html.Main(
-			attr.Class("container mx-auto px-4 py-8 max-w-6xl"),
+			attr.Class("container mx-auto px-4 py-8 max-w-7xl"),
+			html.H1(
+				attr.Class("font-semibold text-2xl mb-6"),
+				html.Text("Code"),
+			),
 			renderTreeContent(data),
 		),
 	)
@@ -94,7 +103,7 @@ func renderBranchSelector(data *RepositoryTreeData) html.Node {
 	defaultBranch := data.Repository.DefaultBranch
 	if defaultBranch != "" {
 		isSelected := data.CurrentBranch == defaultBranch
-		options = append(options, html.Element("option",
+		options = append(options, html.Option(
 			attr.Value(defaultBranch),
 			attr.Selected(isSelected),
 			html.Text(defaultBranch+" (default)"),
@@ -107,7 +116,7 @@ func renderBranchSelector(data *RepositoryTreeData) html.Node {
 			continue
 		}
 		isSelected := data.CurrentBranch == branch
-		options = append(options, html.Element("option",
+		options = append(options, html.Option(
 			attr.Value(branch),
 			attr.Selected(isSelected),
 			html.Text(branch),
@@ -123,8 +132,8 @@ func renderBranchSelector(data *RepositoryTreeData) html.Node {
 
 	return html.Div(
 		attr.Class("flex items-center gap-2"),
-		html.Element("select", selectChildren...),
-		html.Element("script",
+		html.Select(selectChildren...),
+		html.Script(
 			html.Text(fmt.Sprintf(`
 function handleBranchChange(branch) {
 	const owner = %q;
@@ -168,14 +177,14 @@ func renderPathBreadcrumb(data *RepositoryTreeData) html.Node {
 		}
 		currentPath += part
 
-		breadcrumbItems = append(breadcrumbItems, html.Element("span",
+		breadcrumbItems = append(breadcrumbItems, html.Span(
 			attr.Class("text-muted-foreground"),
 			html.Text(" / "),
 		))
 
 		if i == len(parts)-1 {
 			// Last part - not a link
-			breadcrumbItems = append(breadcrumbItems, html.Element("span",
+			breadcrumbItems = append(breadcrumbItems, html.Span(
 				attr.Class("text-foreground font-medium"),
 				html.Text(part),
 			))
@@ -215,9 +224,9 @@ func renderFileList(data *RepositoryTreeData) html.Node {
 
 	return html.Div(
 		attr.Class("border rounded-sm bg-card overflow-hidden"),
-		html.Element("table",
+		html.Table(
 			attr.Class("w-full"),
-			html.Element("tbody",
+			html.Tbody(
 				rows...,
 			),
 		),
@@ -238,9 +247,9 @@ func renderFileListItem(data *RepositoryTreeData, entry services.TreeEntry) html
 		entryURL = fmt.Sprintf("/%s/%s/tree/%s/%s", data.OwnerUsername, data.Repository.Name, data.CurrentBranch, entry.Path)
 	}
 
-	return html.Element("tr",
+	return html.Tr(
 		attr.Class("border-b last:border-b-0 hover:bg-muted/50 transition-colors"),
-		html.Element("td",
+		html.Td(
 			attr.Class("p-3"),
 			html.Element("a",
 				attr.Href(entryURL),
@@ -249,7 +258,7 @@ func renderFileListItem(data *RepositoryTreeData, entry services.TreeEntry) html
 					attr.Class("flex-shrink-0 text-muted-foreground"),
 					ui.SVGIcon(icon, "size-5"),
 				),
-				html.Element("span",
+				html.Span(
 					attr.Class("font-medium"),
 					html.Text(entry.Name),
 				),
