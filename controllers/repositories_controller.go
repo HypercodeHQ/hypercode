@@ -122,7 +122,7 @@ func (c *repositoriesController) Store(w http.ResponseWriter, r *http.Request) e
 		slog.Error("failed to create admin contributor", "error", err)
 	}
 
-	repoPath := filepath.Join(c.reposBasePath, user.Username, name)
+	repoPath := filepath.Join(c.reposBasePath, fmt.Sprintf("%d", user.ID), name)
 	if err := os.MkdirAll(repoPath, 0755); err != nil {
 		slog.Error("failed to create repository directory", "error", err)
 		return httperror.New(http.StatusInternalServerError, "failed to create repository")

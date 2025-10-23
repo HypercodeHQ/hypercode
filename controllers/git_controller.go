@@ -88,6 +88,14 @@ func (c *gitController) handleGitOperation(w http.ResponseWriter, r *http.Reques
 		return nil
 	}
 
+	// Get the owner ID for constructing the repository path
+	var ownerIDForPath string
+	if ownerType == middleware.OwnerTypeUser {
+		ownerIDForPath = fmt.Sprintf("%d", ownerID)
+	} else {
+		ownerIDForPath = fmt.Sprintf("org_%d", ownerID)
+	}
+
 	slog.Info("git http request",
 		"owner", owner,
 		"repo", repoName,
@@ -163,7 +171,7 @@ func (c *gitController) handleGitOperation(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	repoPath := filepath.Join(c.reposBasePath, owner, repoName)
+	repoPath := filepath.Join(c.reposBasePath, ownerIDForPath, repoName)
 
 	absRepoPath, err := filepath.Abs(repoPath)
 	if err != nil {
