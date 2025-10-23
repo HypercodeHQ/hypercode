@@ -41,6 +41,7 @@ func main() {
 	signUpController := controllers.NewSignUpController(users, authService, flashService)
 	signInController := controllers.NewSignInController(users, authService)
 	signOutController := controllers.NewSignOutController(authService)
+	settingsController := controllers.NewSettingsController(users, authService)
 	forgotPasswordController := controllers.NewForgotPasswordController()
 	resetPasswordController := controllers.NewResetPasswordController()
 	orgsController := controllers.NewOrganizationsController()
@@ -67,6 +68,10 @@ func main() {
 	r.Post("/sign-in", wrapHandler(signInController.Handle))
 
 	r.Get("/sign-out", wrapHandler(signOutController.Handle))
+
+	r.Get("/settings", wrapHandler(settingsController.Show))
+	r.Post("/settings/general", wrapHandler(settingsController.UpdateGeneral))
+	r.Post("/settings/password", wrapHandler(settingsController.UpdatePassword))
 
 	r.Get("/forgot-password", wrapHandler(forgotPasswordController.Show))
 	r.Post("/forgot-password", wrapHandler(forgotPasswordController.Handle))

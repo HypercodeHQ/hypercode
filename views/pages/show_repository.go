@@ -23,30 +23,18 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 		data = &ShowRepositoryData{}
 	}
 
-	return layouts.Main(r, data.OwnerUsername+"/"+data.Repository.Name,
+	return layouts.Repository(r,
+		data.OwnerUsername+"/"+data.Repository.Name+" - Hypercode",
+		layouts.RepositoryLayoutOptions{
+			OwnerUsername: data.OwnerUsername,
+			RepoName:      data.Repository.Name,
+			CurrentTab:    "overview",
+			IsPublic:      data.IsPublic,
+		},
 		html.Main(
 			attr.Class("container mx-auto px-4 py-8 max-w-6xl"),
 			html.Div(
-				attr.Class("flex flex-wrap gap-4 items-center justify-between"),
-				html.Div(
-					attr.Class("flex flex-wrap gap-4 items-center"),
-					html.H2(
-						attr.Class("sm:text-xl font-medium"),
-						html.Text(data.OwnerUsername+"/"+data.Repository.Name),
-					),
-					html.Div(
-						ui.Badge(
-							ui.BadgeProps{
-								Variant: ui.BadgeOutline,
-								Class:   "bg-card",
-							},
-							html.Text(visibilityText(data.IsPublic)),
-						),
-					),
-				),
-			),
-			html.Div(
-				attr.Class("border rounded-sm p-6 bg-card mt-6"),
+				attr.Class("border rounded-sm p-6 bg-card"),
 				html.Label(
 					attr.For("clone-url"),
 					attr.Class("label mb-2"),
@@ -116,11 +104,4 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 			),
 		),
 	)
-}
-
-func visibilityText(isPublic bool) string {
-	if isPublic {
-		return "Public"
-	}
-	return "Private"
 }

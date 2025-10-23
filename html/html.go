@@ -288,3 +288,22 @@ func For[T any](items []T, fn func(T) Node) Node {
 	}
 	return forLoop{nodes: nodes}
 }
+
+type group struct {
+	children []Node
+}
+
+func (g group) Render(w http.ResponseWriter, r *http.Request) error {
+	for _, child := range g.children {
+		if err := child.Render(w, r); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Group renders multiple children without wrapping them in an HTML element.
+// This is useful when you need to return multiple nodes as a single Node.
+func Group(children ...Node) Node {
+	return group{children: children}
+}

@@ -73,7 +73,7 @@ func Home(r *http.Request, data *HomeData) html.Node {
 	}
 
 	return layouts.Main(r,
-		"Hypercode",
+		"Hypercode: An open-source alternative to GitHub",
 		html.Main(
 			attr.Class("w-full mx-auto max-w-6xl px-4 py-8"),
 			mainContent,

@@ -13,7 +13,7 @@ type HeaderData struct {
 	User *models.User
 }
 
-func Header(data *HeaderData) html.Node {
+func Header(data *HeaderData, children ...html.Node) html.Node {
 	if data == nil {
 		data = &HeaderData{}
 	}
@@ -32,6 +32,7 @@ func Header(data *HeaderData) html.Node {
 					attr.Class("h-7"),
 				),
 			),
+			html.Group(children...),
 		),
 		html.Div(
 			attr.Class("flex flex-wrap items-center gap-4"),
@@ -60,6 +61,8 @@ func socialLinks() html.Node {
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Follow us on X"),
+			attr.DataTooltip("Follow us on X"),
+			attr.DataSide("bottom"),
 			attr.Class("btn-icon-ghost"),
 			ui.SVGIcon(ui.IconTwitter, ""),
 		),
@@ -68,6 +71,8 @@ func socialLinks() html.Node {
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Join our Discord"),
+			attr.DataTooltip("Join our Discord"),
+			attr.DataSide("bottom"),
 			attr.Class("btn-icon-ghost"),
 			ui.SVGIcon(ui.IconDiscord, ""),
 		),
@@ -76,6 +81,8 @@ func socialLinks() html.Node {
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Follow us on Bluesky"),
+			attr.DataTooltip("Follow us on Bluesky"),
+			attr.DataSide("bottom"),
 			attr.Class("btn-icon-ghost"),
 			ui.SVGIcon(ui.IconBluesky, ""),
 		),
@@ -84,6 +91,8 @@ func socialLinks() html.Node {
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Star us on GitHub"),
+			attr.DataTooltip("Star us on GitHub"),
+			attr.DataSide("bottom"),
 			attr.Class("btn-icon-ghost"),
 			ui.SVGIcon(ui.IconGitHub, ""),
 		),
@@ -188,6 +197,16 @@ func userAccountDropdown(user *models.User) html.Node {
 						attr.Role("separator"),
 					),
 					html.A(
+						attr.Href("/settings"),
+						attr.Role("menuitem"),
+						attr.Class("cursor-pointer"),
+						ui.SVGIcon(ui.IconSettings, ""),
+						html.Text("Settings"),
+					),
+					html.Element("hr",
+						attr.Role("separator"),
+					),
+					html.A(
 						attr.Href("https://x.com/hypercode2099"),
 						attr.Target("_blank"),
 						attr.Rel("noopener noreferrer"),
@@ -247,4 +266,8 @@ func getUserInitials(user *models.User) string {
 		return strings.ToUpper(user.Username[0:2])
 	}
 	return strings.ToUpper(string(user.Username[0]))
+}
+
+func MainHeader(data *HeaderData) html.Node {
+	return Header(data)
 }
