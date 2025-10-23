@@ -41,7 +41,7 @@ func Settings(r *http.Request, data *SettingsData) html.Node {
 	return layouts.Main(r,
 		"Settings",
 		html.Main(
-			attr.Class("min-h-[calc(100vh-61px)] w-full mx-auto max-w-2xl space-y-6 py-8 px-4"),
+			attr.Class("min-h-[calc(100vh-61px)] w-full mx-auto max-w-6xl space-y-6 py-8 px-4"),
 			html.H1(
 				attr.Class("font-semibold text-2xl mb-6"),
 				html.Text("Settings"),

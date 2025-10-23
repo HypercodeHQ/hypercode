@@ -9,7 +9,6 @@ import (
 	"github.com/hyperstitieux/hypercode/middleware"
 	"github.com/hyperstitieux/hypercode/services"
 	"github.com/hyperstitieux/hypercode/views/components"
-	"github.com/hyperstitieux/hypercode/views/components/ui"
 )
 
 type repositoryLayout struct {
@@ -20,6 +19,9 @@ type repositoryLayout struct {
 	repoName      string
 	currentTab    string
 	isPublic      bool
+	showSettings  bool
+	starCount     int64
+	hasStarred    bool
 }
 
 type RepositoryLayoutOptions struct {
@@ -27,6 +29,9 @@ type RepositoryLayoutOptions struct {
 	RepoName      string
 	CurrentTab    string
 	IsPublic      bool
+	ShowSettings  bool
+	StarCount     int64
+	HasStarred    bool
 }
 
 func Repository(r *http.Request, title string, opts RepositoryLayoutOptions, children ...html.Node) repositoryLayout {
@@ -38,6 +43,9 @@ func Repository(r *http.Request, title string, opts RepositoryLayoutOptions, chi
 		repoName:      opts.RepoName,
 		currentTab:    opts.CurrentTab,
 		isPublic:      opts.IsPublic,
+		showSettings:  opts.ShowSettings,
+		starCount:     opts.StarCount,
+		hasStarred:    opts.HasStarred,
 	}
 }
 
@@ -49,11 +57,10 @@ func (b repositoryLayout) Render(w http.ResponseWriter, r *http.Request) error {
 			OwnerUsername: b.ownerUsername,
 			RepoName:      b.repoName,
 			IsPublic:      b.isPublic,
-		}),
-		ui.RepositoryTabs(ui.RepositoryTabsProps{
-			OwnerUsername: b.ownerUsername,
-			RepoName:      b.repoName,
 			CurrentTab:    b.currentTab,
+			ShowSettings:  b.showSettings,
+			StarCount:     b.starCount,
+			HasStarred:    b.hasStarred,
 		}),
 	}
 	bodyChildren = append(bodyChildren, b.children...)

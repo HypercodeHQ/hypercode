@@ -9,11 +9,11 @@ type RepositoryTabsProps struct {
 	OwnerUsername string
 	RepoName      string
 	CurrentTab    string
+	ShowSettings  bool
 }
 
 func RepositoryTabs(props RepositoryTabsProps) html.Node {
-	return html.Nav(
-		attr.Class("bg-card px-4 flex flex-wrap items-center gap-4 border-b"),
+	tabs := []html.Node{
 		repositoryTab(
 			props.OwnerUsername,
 			props.RepoName,
@@ -30,14 +30,22 @@ func RepositoryTabs(props RepositoryTabsProps) html.Node {
 			IconCode,
 			"Sources",
 		),
-		repositoryTab(
+	}
+
+	if props.ShowSettings {
+		tabs = append(tabs, repositoryTab(
 			props.OwnerUsername,
 			props.RepoName,
 			"settings",
 			props.CurrentTab,
 			IconSettings,
 			"Settings",
-		),
+		))
+	}
+
+	return html.Nav(
+		attr.Class("flex flex-wrap items-center gap-4"),
+		html.Group(tabs...),
 	)
 }
 
@@ -57,7 +65,7 @@ func repositoryTab(ownerUsername, repoName, tab, currentTab string, icon Icon, l
 
 	return html.A(
 		attr.Href(href),
-		attr.Class("inline-flex py-3 border-b-2 transition-colors "+borderClass(isActive)),
+		attr.Class("inline-flex pb-2 border-b-2 transition-colors "+borderClass(isActive)),
 		html.Element("span",
 			attr.Class(spanClasses),
 			smallSVGIcon(icon, ""),

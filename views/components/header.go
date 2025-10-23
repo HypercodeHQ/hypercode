@@ -155,6 +155,13 @@ func createNewDropdown() html.Node {
 						ui.SVGIcon(ui.IconRepository, ""),
 						html.Text("New repository"),
 					),
+					html.A(
+						attr.Class("cursor-pointer"),
+						attr.Href("/organizations/new"),
+						attr.Role("menuitem"),
+						ui.SVGIcon(ui.IconBuilding, ""),
+						html.Text("New organization"),
+					),
 				),
 			),
 		),

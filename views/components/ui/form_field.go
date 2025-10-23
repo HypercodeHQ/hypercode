@@ -6,16 +6,17 @@ import (
 )
 
 type FormFieldProps struct {
-	Label       string
-	Id          string
-	Name        string
-	Type        string
-	Placeholder string
-	Icon        Icon
-	Required    bool
-	Value       string
-	Class       string
-	Error       string
+	Label        string
+	Id           string
+	Name         string
+	Type         string
+	Placeholder  string
+	Icon         Icon
+	Required     bool
+	Value        string
+	Class        string
+	WrapperClass string
+	Error        string
 }
 
 func FormField(props FormFieldProps) html.Node {
@@ -59,8 +60,13 @@ func FormField(props FormFieldProps) html.Node {
 		inputAttrs = append(inputAttrs, attr.Required())
 	}
 
+	wrapperClass := "space-y-2"
+	if props.WrapperClass != "" {
+		wrapperClass += " " + props.WrapperClass
+	}
+
 	return html.Div(
-		attr.Class("space-y-2"),
+		attr.Class(wrapperClass),
 		html.Label(
 			attr.For(props.Id),
 			attr.Class(labelClass),

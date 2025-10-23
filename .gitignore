@@ -4,3 +4,4 @@ tmp/
 *.db
 build-errors.log
 node_modules/
+repos/

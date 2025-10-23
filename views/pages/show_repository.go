@@ -16,6 +16,9 @@ type ShowRepositoryData struct {
 	OwnerUsername string
 	CloneURL      string
 	IsPublic      bool
+	CanManage     bool
+	StarCount     int64
+	HasStarred    bool
 }
 
 func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
@@ -30,6 +33,9 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 			RepoName:      data.Repository.Name,
 			CurrentTab:    "overview",
 			IsPublic:      data.IsPublic,
+			ShowSettings:  data.CanManage,
+			StarCount:     data.StarCount,
+			HasStarred:    data.HasStarred,
 		},
 		html.Main(
 			attr.Class("container mx-auto px-4 py-8 max-w-6xl"),
@@ -105,3 +111,4 @@ func ShowRepository(r *http.Request, data *ShowRepositoryData) html.Node {
 		),
 	)
 }
+

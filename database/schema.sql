@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS repositories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     description TEXT,
+    default_branch TEXT NOT NULL DEFAULT 'main',
     visibility TEXT NOT NULL CHECK(visibility IN ('public', 'private')),
     owner_user_id INTEGER,
     owner_org_id INTEGER,
@@ -35,6 +36,16 @@ CREATE TABLE IF NOT EXISTS contributors (
     repository_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     role TEXT NOT NULL CHECK(role IN ('admin', 'write', 'read')),
+    created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+    FOREIGN KEY (repository_id) REFERENCES repositories(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(repository_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS stars (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    repository_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
     created_at INTEGER NOT NULL DEFAULT (unixepoch()),
     FOREIGN KEY (repository_id) REFERENCES repositories(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -57,6 +68,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_repositories_unique_name_org ON repositori
 CREATE INDEX IF NOT EXISTS idx_contributors_repository ON contributors(repository_id);
 CREATE INDEX IF NOT EXISTS idx_contributors_user ON contributors(user_id);
 CREATE INDEX IF NOT EXISTS idx_contributors_role ON contributors(role);
+
+CREATE INDEX IF NOT EXISTS idx_stars_repository ON stars(repository_id);
+CREATE INDEX IF NOT EXISTS idx_stars_user ON stars(user_id);
 
 CREATE TRIGGER IF NOT EXISTS update_users_timestamp
 AFTER UPDATE ON users

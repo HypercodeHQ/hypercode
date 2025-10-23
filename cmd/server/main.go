@@ -33,6 +33,7 @@ func main() {
 	orgs := repositories.NewOrganizationsRepository(db.DB)
 	repos := repositories.NewRepositoriesRepository(db.DB)
 	contributors := repositories.NewContributorsRepository(db.DB)
+	stars := repositories.NewStarsRepository(db.DB)
 
 	authService := services.NewAuthService(users, cfg.SigningSecret)
 	flashService := services.NewFlashService()
@@ -44,8 +45,8 @@ func main() {
 	settingsController := controllers.NewSettingsController(users, authService)
 	forgotPasswordController := controllers.NewForgotPasswordController()
 	resetPasswordController := controllers.NewResetPasswordController()
-	orgsController := controllers.NewOrganizationsController()
-	reposController := controllers.NewRepositoriesController(repos, users, contributors, authService, cfg.ReposBasePath)
+	orgsController := controllers.NewOrganizationsController(orgs, authService)
+	reposController := controllers.NewRepositoriesController(repos, users, contributors, stars, orgs, authService, cfg.ReposBasePath)
 	gitController := controllers.NewGitController(users, orgs, repos, contributors, authService, cfg.ReposBasePath)
 
 	r := chi.NewRouter()
@@ -95,7 +96,11 @@ func main() {
 
 		r.Route("/{repo}", func(r chi.Router) {
 			r.Get("/", wrapHandler(reposController.Show))
-			r.Delete("/", wrapHandler(reposController.Delete))
+			r.Post("/star", wrapHandler(reposController.Star))
+			r.Post("/unstar", wrapHandler(reposController.Unstar))
+			r.Get("/settings", wrapHandler(reposController.Settings))
+			r.Post("/settings/general", wrapHandler(reposController.UpdateSettings))
+			r.Post("/settings/delete", wrapHandler(reposController.Delete))
 
 			r.Get("/info/refs", wrapHandler(gitController.InfoRefs))
 			r.Post("/git-upload-pack", wrapHandler(gitController.UploadPack))

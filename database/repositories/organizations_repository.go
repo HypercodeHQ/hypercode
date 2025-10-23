@@ -11,6 +11,7 @@ type OrganizationsRepository interface {
 	Create(username, displayName string) (*models.Organization, error)
 	FindByID(id int64) (*models.Organization, error)
 	FindByUsername(username string) (*models.Organization, error)
+	FindAll() ([]*models.Organization, error)
 	Update(org *models.Organization) error
 	Delete(id int64) error
 }
@@ -93,6 +94,38 @@ func (r *organizationsRepository) FindByUsername(username string) (*models.Organ
 	}
 
 	return org, nil
+}
+
+func (r *organizationsRepository) FindAll() ([]*models.Organization, error) {
+	query := `
+		SELECT id, username, display_name, created_at, updated_at
+		FROM organizations
+		ORDER BY username ASC
+	`
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var organizations []*models.Organization
+	for rows.Next() {
+		org := &models.Organization{}
+		err := rows.Scan(
+			&org.ID,
+			&org.Username,
+			&org.DisplayName,
+			&org.CreatedAt,
+			&org.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		organizations = append(organizations, org)
+	}
+
+	return organizations, nil
 }
 
 func (r *organizationsRepository) Update(org *models.Organization) error {

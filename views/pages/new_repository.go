@@ -3,6 +3,7 @@ package pages
 import (
 	"net/http"
 
+	"github.com/hyperstitieux/hypercode/database/models"
 	"github.com/hyperstitieux/hypercode/html"
 	"github.com/hyperstitieux/hypercode/html/attr"
 	"github.com/hyperstitieux/hypercode/views/components/layouts"
@@ -13,8 +14,11 @@ type NewRepositoryData struct {
 	Name               string
 	DefaultBranch      string
 	Visibility         string
+	Owner              string
 	NameError          string
 	DefaultBranchError string
+	User               *models.User
+	Organizations      []*models.Organization
 }
 
 func NewRepository(r *http.Request, data *NewRepositoryData) html.Node {
@@ -23,6 +27,14 @@ func NewRepository(r *http.Request, data *NewRepositoryData) html.Node {
 			DefaultBranch: "main",
 			Visibility:    "public",
 		}
+	}
+
+	// Determine default owner
+	defaultOwner := ""
+	if data.Owner != "" {
+		defaultOwner = data.Owner
+	} else if data.User != nil {
+		defaultOwner = data.User.Username
 	}
 
 	return layouts.Main(r,
@@ -36,17 +48,20 @@ func NewRepository(r *http.Request, data *NewRepositoryData) html.Node {
 			html.Form(
 				attr.Method("POST"),
 				attr.Action("/repositories/new"),
-				attr.Class("space-y-6 w-full"),
+				attr.Class("space-y-4 w-full"),
+
+				ownerSelector(data.User, data.Organizations, defaultOwner),
 				ui.FormField(ui.FormFieldProps{
-					Label:       "Repository name",
-					Id:          "name",
-					Name:        "name",
-					Type:        "text",
-					Placeholder: "my-awesome-project",
-					Icon:        ui.IconRepository,
-					Required:    true,
-					Value:       data.Name,
-					Error:       data.NameError,
+					Label:        "Repository name",
+					Id:           "name",
+					Name:         "name",
+					Type:         "text",
+					Placeholder:  "my-awesome-project",
+					Icon:         ui.IconRepository,
+					Required:     true,
+					Value:        data.Name,
+					Error:        data.NameError,
+					WrapperClass: "sm:col-span-2",
 				}),
 				ui.FormField(ui.FormFieldProps{
 					Label:       "Default branch",
@@ -55,6 +70,7 @@ func NewRepository(r *http.Request, data *NewRepositoryData) html.Node {
 					Type:        "text",
 					Placeholder: "main",
 					Icon:        ui.IconGitBranch,
+					Required:    true,
 					Value:       data.DefaultBranch,
 					Error:       data.DefaultBranchError,
 				}),
@@ -168,4 +184,36 @@ func NewRepository(r *http.Request, data *NewRepositoryData) html.Node {
 			),
 		),
 	)
+}
+
+func ownerSelector(user *models.User, organizations []*models.Organization, selectedOwner string) html.Node {
+	if user == nil {
+		return html.Group()
+	}
+
+	// Build options
+	options := []ui.SelectOption{
+		{
+			Value:    user.Username,
+			Label:    user.Username + " (You)",
+			Selected: selectedOwner == user.Username || selectedOwner == "",
+		},
+	}
+
+	for _, org := range organizations {
+		options = append(options, ui.SelectOption{
+			Value:    org.Username,
+			Label:    org.Username + " (" + org.DisplayName + ")",
+			Selected: selectedOwner == org.Username,
+		})
+	}
+
+	return ui.Select(ui.SelectProps{
+		Id:       "owner",
+		Name:     "owner",
+		Label:    "Owner",
+		Options:  options,
+		Required: true,
+		Class:    "!mb-2",
+	})
 }

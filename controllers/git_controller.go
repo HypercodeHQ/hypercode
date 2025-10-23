@@ -171,7 +171,7 @@ func (c *gitController) handleGitOperation(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	repoPath := filepath.Join(c.reposBasePath, ownerIDForPath, repoName)
+	repoPath := filepath.Join(c.reposBasePath, ownerIDForPath, fmt.Sprintf("%d", repo.ID))
 
 	absRepoPath, err := filepath.Abs(repoPath)
 	if err != nil {

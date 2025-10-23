@@ -8,8 +8,8 @@ import (
 )
 
 type RepositoriesRepository interface {
-	CreateForUser(userID int64, name, visibility string, description *string) (*models.Repository, error)
-	CreateForOrg(orgID int64, name, visibility string, description *string) (*models.Repository, error)
+	CreateForUser(userID int64, name, visibility, defaultBranch string, description *string) (*models.Repository, error)
+	CreateForOrg(orgID int64, name, visibility, defaultBranch string, description *string) (*models.Repository, error)
 	FindByID(id int64) (*models.Repository, error)
 	FindByUserAndName(userID int64, name string) (*models.Repository, error)
 	FindByOrgAndName(orgID int64, name string) (*models.Repository, error)
@@ -29,18 +29,19 @@ func NewRepositoriesRepository(db *sql.DB) RepositoriesRepository {
 	return &repositoriesRepository{db: db}
 }
 
-func (r *repositoriesRepository) CreateForUser(userID int64, name, visibility string, description *string) (*models.Repository, error) {
+func (r *repositoriesRepository) CreateForUser(userID int64, name, visibility, defaultBranch string, description *string) (*models.Repository, error) {
 	query := `
-		INSERT INTO repositories (name, description, visibility, owner_user_id)
-		VALUES (?, ?, ?, ?)
-		RETURNING id, name, description, visibility, owner_user_id, owner_org_id, created_at, updated_at
+		INSERT INTO repositories (name, description, default_branch, visibility, owner_user_id)
+		VALUES (?, ?, ?, ?, ?)
+		RETURNING id, name, description, default_branch, visibility, owner_user_id, owner_org_id, created_at, updated_at
 	`
 
 	repo := &models.Repository{}
-	err := r.db.QueryRow(query, name, description, visibility, userID).Scan(
+	err := r.db.QueryRow(query, name, description, defaultBranch, visibility, userID).Scan(
 		&repo.ID,
 		&repo.Name,
 		&repo.Description,
+		&repo.DefaultBranch,
 		&repo.Visibility,
 		&repo.OwnerUserID,
 		&repo.OwnerOrgID,
@@ -54,18 +55,19 @@ func (r *repositoriesRepository) CreateForUser(userID int64, name, visibility st
 	return repo, nil
 }
 
-func (r *repositoriesRepository) CreateForOrg(orgID int64, name, visibility string, description *string) (*models.Repository, error) {
+func (r *repositoriesRepository) CreateForOrg(orgID int64, name, visibility, defaultBranch string, description *string) (*models.Repository, error) {
 	query := `
-		INSERT INTO repositories (name, description, visibility, owner_org_id)
-		VALUES (?, ?, ?, ?)
-		RETURNING id, name, description, visibility, owner_user_id, owner_org_id, created_at, updated_at
+		INSERT INTO repositories (name, description, default_branch, visibility, owner_org_id)
+		VALUES (?, ?, ?, ?, ?)
+		RETURNING id, name, description, default_branch, visibility, owner_user_id, owner_org_id, created_at, updated_at
 	`
 
 	repo := &models.Repository{}
-	err := r.db.QueryRow(query, name, description, visibility, orgID).Scan(
+	err := r.db.QueryRow(query, name, description, defaultBranch, visibility, orgID).Scan(
 		&repo.ID,
 		&repo.Name,
 		&repo.Description,
+		&repo.DefaultBranch,
 		&repo.Visibility,
 		&repo.OwnerUserID,
 		&repo.OwnerOrgID,
@@ -81,7 +83,7 @@ func (r *repositoriesRepository) CreateForOrg(orgID int64, name, visibility stri
 
 func (r *repositoriesRepository) FindByID(id int64) (*models.Repository, error) {
 	query := `
-		SELECT id, name, description, visibility, owner_user_id, owner_org_id, created_at, updated_at
+		SELECT id, name, description, default_branch, visibility, owner_user_id, owner_org_id, created_at, updated_at
 		FROM repositories
 		WHERE id = ?
 	`
@@ -91,6 +93,7 @@ func (r *repositoriesRepository) FindByID(id int64) (*models.Repository, error) 
 		&repo.ID,
 		&repo.Name,
 		&repo.Description,
+		&repo.DefaultBranch,
 		&repo.Visibility,
 		&repo.OwnerUserID,
 		&repo.OwnerOrgID,
@@ -109,7 +112,7 @@ func (r *repositoriesRepository) FindByID(id int64) (*models.Repository, error) 
 
 func (r *repositoriesRepository) FindByUserAndName(userID int64, name string) (*models.Repository, error) {
 	query := `
-		SELECT id, name, description, visibility, owner_user_id, owner_org_id, created_at, updated_at
+		SELECT id, name, description, default_branch, visibility, owner_user_id, owner_org_id, created_at, updated_at
 		FROM repositories
 		WHERE owner_user_id = ? AND name = ?
 	`
@@ -119,6 +122,7 @@ func (r *repositoriesRepository) FindByUserAndName(userID int64, name string) (*
 		&repo.ID,
 		&repo.Name,
 		&repo.Description,
+		&repo.DefaultBranch,
 		&repo.Visibility,
 		&repo.OwnerUserID,
 		&repo.OwnerOrgID,
@@ -137,7 +141,7 @@ func (r *repositoriesRepository) FindByUserAndName(userID int64, name string) (*
 
 func (r *repositoriesRepository) FindByOrgAndName(orgID int64, name string) (*models.Repository, error) {
 	query := `
-		SELECT id, name, description, visibility, owner_user_id, owner_org_id, created_at, updated_at
+		SELECT id, name, description, default_branch, visibility, owner_user_id, owner_org_id, created_at, updated_at
 		FROM repositories
 		WHERE owner_org_id = ? AND name = ?
 	`
@@ -147,6 +151,7 @@ func (r *repositoriesRepository) FindByOrgAndName(orgID int64, name string) (*mo
 		&repo.ID,
 		&repo.Name,
 		&repo.Description,
+		&repo.DefaultBranch,
 		&repo.Visibility,
 		&repo.OwnerUserID,
 		&repo.OwnerOrgID,
@@ -165,7 +170,7 @@ func (r *repositoriesRepository) FindByOrgAndName(orgID int64, name string) (*mo
 
 func (r *repositoriesRepository) FindByOwnerAndName(ownerUsername, repoName string) (*models.Repository, error) {
 	query := `
-		SELECT r.id, r.name, r.description, r.visibility, r.owner_user_id, r.owner_org_id, r.created_at, r.updated_at
+		SELECT r.id, r.name, r.description, r.default_branch, r.visibility, r.owner_user_id, r.owner_org_id, r.created_at, r.updated_at
 		FROM repositories r
 		LEFT JOIN users u ON r.owner_user_id = u.id
 		LEFT JOIN organizations o ON r.owner_org_id = o.id
@@ -177,6 +182,7 @@ func (r *repositoriesRepository) FindByOwnerAndName(ownerUsername, repoName stri
 		&repo.ID,
 		&repo.Name,
 		&repo.Description,
+		&repo.DefaultBranch,
 		&repo.Visibility,
 		&repo.OwnerUserID,
 		&repo.OwnerOrgID,
@@ -195,7 +201,7 @@ func (r *repositoriesRepository) FindByOwnerAndName(ownerUsername, repoName stri
 
 func (r *repositoriesRepository) FindAllByUser(userID int64) ([]*models.Repository, error) {
 	query := `
-		SELECT id, name, description, visibility, owner_user_id, owner_org_id, created_at, updated_at
+		SELECT id, name, description, default_branch, visibility, owner_user_id, owner_org_id, created_at, updated_at
 		FROM repositories
 		WHERE owner_user_id = ?
 		ORDER BY created_at DESC
@@ -214,6 +220,7 @@ func (r *repositoriesRepository) FindAllByUser(userID int64) ([]*models.Reposito
 			&repo.ID,
 			&repo.Name,
 			&repo.Description,
+			&repo.DefaultBranch,
 			&repo.Visibility,
 			&repo.OwnerUserID,
 			&repo.OwnerOrgID,
@@ -231,7 +238,7 @@ func (r *repositoriesRepository) FindAllByUser(userID int64) ([]*models.Reposito
 
 func (r *repositoriesRepository) FindAllByOrg(orgID int64) ([]*models.Repository, error) {
 	query := `
-		SELECT id, name, description, visibility, owner_user_id, owner_org_id, created_at, updated_at
+		SELECT id, name, description, default_branch, visibility, owner_user_id, owner_org_id, created_at, updated_at
 		FROM repositories
 		WHERE owner_org_id = ?
 		ORDER BY created_at DESC
@@ -250,6 +257,7 @@ func (r *repositoriesRepository) FindAllByOrg(orgID int64) ([]*models.Repository
 			&repo.ID,
 			&repo.Name,
 			&repo.Description,
+			&repo.DefaultBranch,
 			&repo.Visibility,
 			&repo.OwnerUserID,
 			&repo.OwnerOrgID,
@@ -267,7 +275,7 @@ func (r *repositoriesRepository) FindAllByOrg(orgID int64) ([]*models.Repository
 
 func (r *repositoriesRepository) FindPublic() ([]*models.Repository, error) {
 	query := `
-		SELECT id, name, description, visibility, owner_user_id, owner_org_id, created_at, updated_at
+		SELECT id, name, description, default_branch, visibility, owner_user_id, owner_org_id, created_at, updated_at
 		FROM repositories
 		WHERE visibility = 'public'
 		ORDER BY created_at DESC
@@ -286,6 +294,7 @@ func (r *repositoriesRepository) FindPublic() ([]*models.Repository, error) {
 			&repo.ID,
 			&repo.Name,
 			&repo.Description,
+			&repo.DefaultBranch,
 			&repo.Visibility,
 			&repo.OwnerUserID,
 			&repo.OwnerOrgID,
@@ -304,11 +313,11 @@ func (r *repositoriesRepository) FindPublic() ([]*models.Repository, error) {
 func (r *repositoriesRepository) Update(repo *models.Repository) error {
 	query := `
 		UPDATE repositories
-		SET name = ?, description = ?, visibility = ?
+		SET name = ?, description = ?, default_branch = ?, visibility = ?
 		WHERE id = ?
 	`
 
-	result, err := r.db.Exec(query, repo.Name, repo.Description, repo.Visibility, repo.ID)
+	result, err := r.db.Exec(query, repo.Name, repo.Description, repo.DefaultBranch, repo.Visibility, repo.ID)
 	if err != nil {
 		return err
 	}
