@@ -425,7 +425,28 @@ func (c *repositoriesController) Tree(w http.ResponseWriter, r *http.Request) er
 		return nil
 	}
 
-	// List tree contents
+	// Try to get file content first (if treePath points to a file)
+	if treePath != "" {
+		fileContent, err := c.gitService.GetFileContent(repoPath, ref, treePath)
+		if err == nil && fileContent != nil {
+			// It's a file - display file content
+			data := &pages.RepositoryFileData{
+				User:          user,
+				Repository:    repo,
+				OwnerUsername: owner,
+				CanManage:     canManage,
+				StarCount:     starCount,
+				HasStarred:    hasStarred,
+				Branches:      branches,
+				CurrentBranch: ref,
+				CurrentPath:   treePath,
+				FileContent:   string(fileContent),
+			}
+			return pages.RepositoryFile(r, data).Render(w, r)
+		}
+	}
+
+	// List tree contents (directory)
 	entries, err := c.gitService.ListTree(repoPath, ref, treePath)
 	if err != nil {
 		slog.Error("failed to list tree", "error", err, "ref", ref, "path", treePath)

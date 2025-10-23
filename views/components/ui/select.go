@@ -13,13 +13,14 @@ type SelectOption struct {
 }
 
 type SelectProps struct {
-	Id       string
-	Name     string
-	Label    string
-	Options  []SelectOption
-	Required bool
-	Error    string
-	Class    string
+	Id           string
+	Name         string
+	Label        string
+	Options      []SelectOption
+	Required     bool
+	Error        string
+	Class        string
+	ContentClass string
 }
 
 func Select(props SelectProps) html.Node {
@@ -60,7 +61,7 @@ func Select(props SelectProps) html.Node {
 		attr.Class(wrapperClass),
 		html.Label(labelAttrs...),
 		html.Div(
-			attr.Class("select !mb-0"),
+			attr.Class("select !mb-0 "+props.ContentClass),
 			// Hidden input for form submission
 			html.Input(
 				attr.Type("hidden"),
@@ -85,6 +86,7 @@ func Select(props SelectProps) html.Node {
 					),
 					html.Element("span",
 						attr.Id(selectId+"-value"),
+						attr.Class("font-normal"),
 						html.Text(selectedLabel),
 					),
 				),
@@ -106,7 +108,7 @@ func Select(props SelectProps) html.Node {
 							attr.Attribute{Key: "data-value", Value: option.Value},
 							html.If(option.Icon != "", attr.Attribute{Key: "data-icon", Value: string(option.Icon)}),
 							html.If(option.Selected, attr.Attribute{Key: "aria-selected", Value: "true"}),
-							attr.Class("cursor-pointer flex items-center gap-2"),
+							attr.Class("cursor-pointer flex items-center gap-2 border-b border-border last:border-b-0"),
 							html.If(option.Icon != "", SVGIcon(option.Icon, "h-4 w-4")),
 							html.Text(option.Label),
 						)

@@ -257,3 +257,7 @@ func DataPopover(value string) html.Node {
 func Crossorigin(value string) html.Node {
 	return Attribute{Key: "crossorigin", Value: value}
 }
+
+func Label(value string) html.Node {
+	return Attribute{Key: "label", Value: value}
+}

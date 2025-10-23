@@ -3,17 +3,17 @@ package pages
 import (
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/hyperstitieux/hypercode/database/models"
 	"github.com/hyperstitieux/hypercode/html"
 	"github.com/hyperstitieux/hypercode/html/attr"
-	"github.com/hyperstitieux/hypercode/services"
 	"github.com/hyperstitieux/hypercode/views/components/layouts"
 	"github.com/hyperstitieux/hypercode/views/components/ui"
 )
 
-type RepositoryTreeData struct {
+type RepositoryFileData struct {
 	User          *models.User
 	Repository    *models.Repository
 	OwnerUsername string
@@ -23,13 +23,12 @@ type RepositoryTreeData struct {
 	Branches      []string
 	CurrentBranch string
 	CurrentPath   string
-	Entries       []services.TreeEntry
-	IsEmpty       bool
+	FileContent   string
 }
 
-func RepositoryTree(r *http.Request, data *RepositoryTreeData) html.Node {
+func RepositoryFile(r *http.Request, data *RepositoryFileData) html.Node {
 	if data == nil {
-		data = &RepositoryTreeData{}
+		data = &RepositoryFileData{}
 	}
 
 	cloneURL := "https://" + r.Host + "/" + data.OwnerUsername + "/" + data.Repository.Name
@@ -55,33 +54,23 @@ func RepositoryTree(r *http.Request, data *RepositoryTreeData) html.Node {
 				attr.Class("font-semibold text-2xl mb-6"),
 				html.Text("Code"),
 			),
-			renderTreeContent(data),
+			renderFileView(data),
 		),
 	)
 }
 
-func renderTreeContent(data *RepositoryTreeData) html.Node {
-	if data.IsEmpty {
-		return html.Div(
-			attr.Class("border rounded-sm p-8 bg-card text-center"),
-			ui.EmptyState(
-				ui.EmptyStateProps{
-					Icon:        ui.SVGIcon(ui.IconRepository, "size-6"),
-					Title:       "This repository is empty",
-					Description: "Get started by pushing code to this repository.",
-				},
-			),
-		)
-	}
-
+func renderFileView(data *RepositoryFileData) html.Node {
 	// Build branch selector
-	branchSelector := renderBranchSelector(data)
+	branchSelector := renderFileBranchSelector(data)
 
 	// Build breadcrumb navigation
-	breadcrumb := renderPathBreadcrumb(data)
+	breadcrumb := renderFilePathBreadcrumb(data)
 
-	// Build file/folder list
-	fileList := renderFileList(data)
+	// Get filename from path
+	filename := filepath.Base(data.CurrentPath)
+
+	// Build file content view
+	fileContent := renderFileContent(data.FileContent, filename)
 
 	return html.Div(
 		attr.Class("space-y-4"),
@@ -91,12 +80,12 @@ func renderTreeContent(data *RepositoryTreeData) html.Node {
 			branchSelector,
 			breadcrumb,
 		),
-		// File list
-		fileList,
+		// File content
+		fileContent,
 	)
 }
 
-func renderBranchSelector(data *RepositoryTreeData) html.Node {
+func renderFileBranchSelector(data *RepositoryFileData) html.Node {
 	selectOptions := []ui.SelectOption{}
 
 	// Add default branch first
@@ -158,7 +147,7 @@ func renderBranchSelector(data *RepositoryTreeData) html.Node {
 	)
 }
 
-func renderPathBreadcrumb(data *RepositoryTreeData) html.Node {
+func renderFilePathBreadcrumb(data *RepositoryFileData) html.Node {
 	if data.CurrentPath == "" {
 		return html.Div()
 	}
@@ -189,13 +178,13 @@ func renderPathBreadcrumb(data *RepositoryTreeData) html.Node {
 		))
 
 		if i == len(parts)-1 {
-			// Last part - not a link
+			// Last part (filename) - not a link
 			breadcrumbItems = append(breadcrumbItems, html.Span(
 				attr.Class("text-foreground font-medium"),
 				html.Text(part),
 			))
 		} else {
-			// Intermediate part - link
+			// Intermediate part (directory) - link
 			breadcrumbItems = append(breadcrumbItems,
 				html.Element("a",
 					attr.Href(fmt.Sprintf("/%s/%s/tree/%s/%s", data.OwnerUsername, data.Repository.Name, data.CurrentBranch, currentPath)),
@@ -211,63 +200,49 @@ func renderPathBreadcrumb(data *RepositoryTreeData) html.Node {
 	return html.Div(breadcrumbChildren...)
 }
 
-func renderFileList(data *RepositoryTreeData) html.Node {
-	if len(data.Entries) == 0 {
-		return html.Div(
-			attr.Class("border rounded-sm p-8 bg-card text-center"),
-			html.P(
-				attr.Class("text-muted-foreground"),
-				html.Text("This directory is empty."),
-			),
-		)
-	}
+func renderFileContent(content string, filename string) html.Node {
+	lines := strings.Split(content, "\n")
 
+	// Build table rows with line numbers
 	rows := []html.Node{}
-
-	for _, entry := range data.Entries {
-		rows = append(rows, renderFileListItem(data, entry))
+	for i, line := range lines {
+		lineNumber := i + 1
+		rows = append(rows, html.Tr(
+			attr.Class("hover:bg-muted/50 transition-colors"),
+			// Line number column
+			html.Td(
+				attr.Class("px-4 py-1 text-right text-muted-foreground select-none border-r border-border font-mono text-sm w-16"),
+				html.Text(fmt.Sprintf("%d", lineNumber)),
+			),
+			// Code content column
+			html.Td(
+				attr.Class("px-4 py-1 font-mono text-sm whitespace-pre"),
+				html.Text(line),
+			),
+		))
 	}
 
 	return html.Div(
 		attr.Class("border rounded-sm bg-card overflow-hidden"),
-		html.Table(
-			attr.Class("w-full"),
-			html.Tbody(
-				rows...,
+		// File header
+		html.Div(
+			attr.Class("px-4 py-3 border-b bg-muted/30 flex items-center gap-2"),
+			ui.SVGIcon(ui.IconFile, "size-4 text-muted-foreground"),
+			html.Span(
+				attr.Class("text-sm font-medium"),
+				html.Text(filename),
+			),
+			html.Span(
+				attr.Class("text-sm text-muted-foreground ml-auto"),
+				html.Text(fmt.Sprintf("%d lines", len(lines))),
 			),
 		),
-	)
-}
-
-func renderFileListItem(data *RepositoryTreeData, entry services.TreeEntry) html.Node {
-	var icon ui.Icon
-	var entryURL string
-	isFolder := entry.Type == "tree"
-
-	if isFolder {
-		icon = ui.IconFolder
-		entryURL = fmt.Sprintf("/%s/%s/tree/%s/%s", data.OwnerUsername, data.Repository.Name, data.CurrentBranch, entry.Path)
-	} else {
-		icon = ui.IconFile
-		// For now, files also link to tree (in future, they should show file content)
-		entryURL = fmt.Sprintf("/%s/%s/tree/%s/%s", data.OwnerUsername, data.Repository.Name, data.CurrentBranch, entry.Path)
-	}
-
-	return html.Tr(
-		attr.Class("border-b last:border-b-0 hover:bg-muted/50 transition-colors"),
-		html.Td(
-			attr.Class("p-3"),
-			html.Element("a",
-				attr.Href(entryURL),
-				attr.Class("flex items-center gap-3 text-foreground hover:text-primary transition-colors"),
-				html.Div(
-					attr.Class("flex-shrink-0 text-muted-foreground"),
-					ui.SVGIcon(icon, "size-4"),
-				),
-				html.Span(
-					attr.Class("text-sm"),
-					html.Text(entry.Name),
-				),
+		// File content table
+		html.Div(
+			attr.Class("overflow-x-auto"),
+			html.Table(
+				attr.Class("w-full"),
+				html.Tbody(rows...),
 			),
 		),
 	)

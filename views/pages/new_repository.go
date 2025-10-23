@@ -191,29 +191,49 @@ func ownerSelector(user *models.User, organizations []*models.Organization, sele
 		return html.Group()
 	}
 
-	// Build options
-	options := []ui.SelectOption{
-		{
-			Value:    user.Username,
-			Label:    user.Username + " (You)",
-			Selected: selectedOwner == user.Username || selectedOwner == "",
-		},
+	// Determine if user is selected
+	userSelected := selectedOwner == user.Username || selectedOwner == ""
+
+	// Build select options
+	selectOptions := []html.Node{
+		// Current user option
+		html.Element("option",
+			attr.Value(user.Username),
+			html.If(userSelected, attr.Selected(true)),
+			html.Text(user.Username+" (You)"),
+		),
 	}
 
-	for _, org := range organizations {
-		options = append(options, ui.SelectOption{
-			Value:    org.Username,
-			Label:    org.Username + " (" + org.DisplayName + ")",
-			Selected: selectedOwner == org.Username,
-		})
+	// Add organizations under an optgroup if any exist
+	if len(organizations) > 0 {
+		orgOptions := []html.Node{}
+		for _, org := range organizations {
+			orgOptions = append(orgOptions, html.Element("option",
+				attr.Value(org.Username),
+				html.If(selectedOwner == org.Username, attr.Selected(true)),
+				html.Text(org.Username+" ("+org.DisplayName+")"),
+			))
+		}
+
+		selectOptions = append(selectOptions, html.Element("optgroup",
+			attr.Label("Organizations"),
+			html.Group(orgOptions...),
+		))
 	}
 
-	return ui.Select(ui.SelectProps{
-		Id:       "owner",
-		Name:     "owner",
-		Label:    "Owner",
-		Options:  options,
-		Required: true,
-		Class:    "w-full",
-	})
+	return html.Div(
+		attr.Class("space-y-2"),
+		html.Label(
+			attr.For("owner"),
+			attr.Class("label"),
+			html.Text("Owner"),
+		),
+		html.Element("select",
+			attr.Id("owner"),
+			attr.Name("owner"),
+			attr.Required(),
+			attr.Class("select w-full"),
+			html.Group(selectOptions...),
+		),
+	)
 }
