@@ -3,10 +3,10 @@ package pages
 import (
 	"net/http"
 
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
-	"github.com/hypercodehq/hypercode/views/components/layouts"
-	"github.com/hypercodehq/hypercode/views/components/ui"
+	html "github.com/hypercodehq/libhtml"
+	"github.com/hypercommithq/hypercommit/views/components/layouts"
+	"github.com/hypercommithq/hypercommit/views/components/ui"
+	"github.com/hypercommithq/libhtml/attr"
 )
 
 type NewOrganizationData struct {

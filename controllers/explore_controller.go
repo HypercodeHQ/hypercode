@@ -4,11 +4,11 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/hypercode/database/repositories"
-	custommiddleware "github.com/hypercodehq/hypercode/middleware"
-	"github.com/hypercodehq/hypercode/services"
-	"github.com/hypercodehq/hypercode/views/pages"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/hypercommit/database/repositories"
+	custommiddleware "github.com/hypercommithq/hypercommit/middleware"
+	"github.com/hypercommithq/hypercommit/services"
+	"github.com/hypercommithq/hypercommit/views/pages"
 )
 
 type ExploreController interface {

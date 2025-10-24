@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
+	html "github.com/hypercodehq/libhtml"
+	"github.com/hypercommithq/libhtml/attr"
 )
 
 // GitHubAuthButton renders a "Continue with GitHub" button

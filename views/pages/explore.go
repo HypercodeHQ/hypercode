@@ -3,11 +3,11 @@ package pages
 import (
 	"net/http"
 
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
-	"github.com/hypercodehq/hypercode/views/components/layouts"
-	"github.com/hypercodehq/hypercode/views/components/ui"
+	html "github.com/hypercodehq/libhtml"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/hypercommit/views/components/layouts"
+	"github.com/hypercommithq/hypercommit/views/components/ui"
+	"github.com/hypercommithq/libhtml/attr"
 )
 
 type ExploreRepositoriesData struct {
@@ -58,7 +58,7 @@ func ExploreRepositories(r *http.Request, data *ExploreRepositoriesData) html.No
 	}
 
 	return layouts.Explore(r,
-		"Explore Repositories - Hypercode",
+		"Explore Repositories - Hypercommit",
 		layouts.ExploreLayoutOptions{
 			CurrentTab: "repositories",
 		},
@@ -107,7 +107,7 @@ func ExploreUsers(r *http.Request, data *ExploreUsersData) html.Node {
 	}
 
 	return layouts.Explore(r,
-		"Explore Users - Hypercode",
+		"Explore Users - Hypercommit",
 		layouts.ExploreLayoutOptions{
 			CurrentTab: "users",
 		},
@@ -156,7 +156,7 @@ func ExploreOrganizations(r *http.Request, data *ExploreOrganizationsData) html.
 	}
 
 	return layouts.Explore(r,
-		"Explore Organizations - Hypercode",
+		"Explore Organizations - Hypercommit",
 		layouts.ExploreLayoutOptions{
 			CurrentTab: "organizations",
 		},

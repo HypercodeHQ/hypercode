@@ -9,9 +9,9 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/hypercodehq/hypercode/database/repositories"
-	"github.com/hypercodehq/hypercode/httperror"
-	"github.com/hypercodehq/hypercode/middleware"
+	"github.com/hypercommithq/hypercommit/database/repositories"
+	"github.com/hypercommithq/hypercommit/httperror"
+	"github.com/hypercommithq/hypercommit/middleware"
 )
 
 type AccessTokensController interface {

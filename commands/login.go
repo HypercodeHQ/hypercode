@@ -20,8 +20,8 @@ import (
 func LoginCommand() *cli.Command {
 	return NewCommandWithFlags(
 		"login",
-		"Authenticate with Hypercode",
-		`Authenticate the CLI with your Hypercode account using device flow.
+		"Authenticate with Hypercommit",
+		`Authenticate the CLI with your Hypercommit account using device flow.
 
 This command will open a browser where you can confirm the authentication code.
 Once confirmed, your credentials will be stored locally for Git operations.`,
@@ -29,7 +29,7 @@ Once confirmed, your credentials will be stored locally for Git operations.`,
 			&cli.StringFlag{
 				Name:    "host",
 				Aliases: []string{"h"},
-				Usage:   "Hypercode server host",
+				Usage:   "Hypercommit server host",
 				Value:   "localhost:3000",
 			},
 		},
@@ -60,7 +60,7 @@ func runLogin(ctx context.Context, cmd *cli.Command) error {
 	}
 	baseURL := fmt.Sprintf("%s://%s", protocol, host)
 
-	fmt.Println("🔐 Authenticating with Hypercode...")
+	fmt.Println("🔐 Authenticating with Hypercommit...")
 	fmt.Println()
 
 	// Step 1: Initiate device auth flow
@@ -127,7 +127,7 @@ func runLogin(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println("✨ Successfully authenticated!")
 	fmt.Printf("   Logged in as: \033[1;32m@%s\033[0m\n", pollResult.Username)
 	fmt.Println()
-	fmt.Println("You can now use Git commands with your Hypercode repositories.")
+	fmt.Println("You can now use Git commands with your Hypercommit repositories.")
 
 	return nil
 }
@@ -277,7 +277,7 @@ func getConfigDir() (string, error) {
 		return "", err
 	}
 
-	return filepath.Join(home, ".hypercode"), nil
+	return filepath.Join(home, ".hypercommit"), nil
 }
 
 func openURL(url string) error {

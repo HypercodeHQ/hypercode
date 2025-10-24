@@ -3,7 +3,7 @@ package validator
 import (
 	"net/http"
 
-	"github.com/hypercodehq/hypercode/validator/rule"
+	"github.com/hypercommithq/hypercommit/validator/rule"
 )
 
 type Validator interface {

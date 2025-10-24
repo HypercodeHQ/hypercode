@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hypercodehq/hypercode/commands"
+	"github.com/hypercommithq/hypercommit/commands"
 	"github.com/urfave/cli/v3"
 )
 
 func main() {
 	cmd := &cli.Command{
-		Name:    "hypercode",
-		Usage:   "Hypercode CLI - Tools for working with Hypercode repositories",
+		Name:    "hypercommit",
+		Usage:   "Hypercommit CLI - Tools for working with Hypercommit repositories",
 		Version: "1.0.0",
 		Authors: []any{
-			"Hypercode Team",
+			"Hypercommit Team",
 		},
-		Description: `The Hypercode CLI provides utilities for working with Hypercode repositories,
+		Description: `The Hypercommit CLI provides utilities for working with Hypercommit repositories,
 including tools for creating conventional commits, managing repositories, and more.`,
 		Commands: commands.GetAllCommands(),
 	}

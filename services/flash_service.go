@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	CookieNameFlash = "hypercode_flash"
+	CookieNameFlash = "hypercommit_flash"
 )
 
 type FlashType string

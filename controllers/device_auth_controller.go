@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/hypercodehq/hypercode/database/repositories"
-	"github.com/hypercodehq/hypercode/httperror"
-	"github.com/hypercodehq/hypercode/middleware"
-	"github.com/hypercodehq/hypercode/views/pages"
+	"github.com/hypercommithq/hypercommit/database/repositories"
+	"github.com/hypercommithq/hypercommit/httperror"
+	"github.com/hypercommithq/hypercommit/middleware"
+	"github.com/hypercommithq/hypercommit/views/pages"
 )
 
 type DeviceAuthController interface {
@@ -104,11 +104,11 @@ func (c *deviceAuthController) InitiateDeviceAuth(w http.ResponseWriter, r *http
 	)
 
 	response := map[string]interface{}{
-		"session_id":        session.ID,
-		"user_code":         session.Code,
-		"verification_url":  verificationURL,
-		"expires_at":        session.ExpiresAt,
-		"interval":          1, // Poll every 1 second
+		"session_id":       session.ID,
+		"user_code":        session.Code,
+		"verification_url": verificationURL,
+		"expires_at":       session.ExpiresAt,
+		"interval":         1, // Poll every 1 second
 	}
 
 	w.Header().Set("Content-Type", "application/json")

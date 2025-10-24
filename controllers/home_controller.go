@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/hypercodehq/hypercode/database/repositories"
-	"github.com/hypercodehq/hypercode/middleware"
-	"github.com/hypercodehq/hypercode/views/pages"
+	"github.com/hypercommithq/hypercommit/database/repositories"
+	"github.com/hypercommithq/hypercommit/middleware"
+	"github.com/hypercommithq/hypercommit/views/pages"
 )
 
 type HomeController interface {

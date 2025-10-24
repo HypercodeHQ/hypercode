@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/hypercodehq/hypercode/database/repositories"
-	"github.com/hypercodehq/hypercode/httperror"
-	"github.com/hypercodehq/hypercode/services"
-	"github.com/hypercodehq/hypercode/views/pages"
+	"github.com/hypercommithq/hypercommit/database/repositories"
+	"github.com/hypercommithq/hypercommit/httperror"
+	"github.com/hypercommithq/hypercommit/services"
+	"github.com/hypercommithq/hypercommit/views/pages"
 )
 
 type SignUpController interface {

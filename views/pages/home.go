@@ -3,11 +3,11 @@ package pages
 import (
 	"net/http"
 
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
-	"github.com/hypercodehq/hypercode/views/components/layouts"
-	"github.com/hypercodehq/hypercode/views/components/ui"
+	html "github.com/hypercodehq/libhtml"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/hypercommit/views/components/layouts"
+	"github.com/hypercommithq/hypercommit/views/components/ui"
+	"github.com/hypercommithq/libhtml/attr"
 )
 
 type HomeData struct {
@@ -69,7 +69,7 @@ func Home(r *http.Request, data *HomeData) html.Node {
 	}
 
 	return layouts.Main(r,
-		"Hypercode: An open-source alternative to GitHub",
+		"Hypercommit: An open-source alternative to GitHub",
 		html.Main(
 			attr.Class("w-full mx-auto max-w-7xl px-4 py-8"),
 			mainContent,

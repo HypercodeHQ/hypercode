@@ -9,14 +9,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/hypercodehq/hypercode/config"
-	"github.com/hypercodehq/hypercode/controllers"
-	"github.com/hypercodehq/hypercode/database"
-	"github.com/hypercodehq/hypercode/database/repositories"
-	"github.com/hypercodehq/hypercode/httperror"
-	custommiddleware "github.com/hypercodehq/hypercode/middleware"
-	"github.com/hypercodehq/hypercode/public"
-	"github.com/hypercodehq/hypercode/services"
+	"github.com/hypercommithq/hypercommit/config"
+	"github.com/hypercommithq/hypercommit/controllers"
+	"github.com/hypercommithq/hypercommit/database"
+	"github.com/hypercommithq/hypercommit/database/repositories"
+	"github.com/hypercommithq/hypercommit/httperror"
+	custommiddleware "github.com/hypercommithq/hypercommit/middleware"
+	"github.com/hypercommithq/hypercommit/public"
+	"github.com/hypercommithq/hypercommit/services"
 )
 
 func main() {

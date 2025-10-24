@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercommithq/hypercommit/database/models"
 )
 
 type AccessTokensRepository interface {

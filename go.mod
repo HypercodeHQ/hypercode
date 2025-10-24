@@ -1,4 +1,4 @@
-module github.com/hypercodehq/hypercode
+module github.com/hypercommithq/hypercommit
 
 go 1.25.0
 
@@ -6,7 +6,7 @@ require (
 	github.com/charmbracelet/huh v0.8.0
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/google/uuid v1.6.0
-	github.com/hypercodehq/libhtml v0.1.0
+	github.com/hypercommithq/libhtml v0.1.0
 	github.com/urfave/cli/v3 v3.5.0
 	golang.org/x/crypto v0.43.0
 	golang.org/x/oauth2 v0.32.0

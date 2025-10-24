@@ -3,11 +3,11 @@ package pages
 import (
 	"net/http"
 
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
-	"github.com/hypercodehq/hypercode/views/components/layouts"
-	"github.com/hypercodehq/hypercode/views/components/ui"
+	html "github.com/hypercodehq/libhtml"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/hypercommit/views/components/layouts"
+	"github.com/hypercommithq/hypercommit/views/components/ui"
+	"github.com/hypercommithq/libhtml/attr"
 )
 
 type RepositoryWithOwner struct {
@@ -48,7 +48,7 @@ func UserProfile(r *http.Request, data *UserProfileData) html.Node {
 	}
 
 	return layouts.Profile(r,
-		data.ProfileUser.DisplayName+" - Hypercode",
+		data.ProfileUser.DisplayName+" - Hypercommit",
 		layouts.ProfileLayoutOptions{
 			Username:     data.ProfileUser.Username,
 			DisplayName:  data.ProfileUser.DisplayName,

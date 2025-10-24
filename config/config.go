@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hypercodehq/hypercode/env"
+	"github.com/hypercommithq/hypercommit/env"
 )
 
 type Config struct {
@@ -20,7 +20,7 @@ type Config struct {
 func New() Config {
 	return Config{
 		HTTPAddr:           env.GetVar("HTTP_ADDR", ":3000"),
-		DatabasePath:       env.GetVar("DATABASE_PATH", "hypercode.db"),
+		DatabasePath:       env.GetVar("DATABASE_PATH", "hypercommit.db"),
 		SigningSecret:      getSigningSecret(),
 		ReposBasePath:      env.GetVar("REPOS_BASE_PATH", "repos"),
 		GitHubClientID:     env.GetVar("GITHUB_OAUTH_CLIENT_ID", ""),

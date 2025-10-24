@@ -3,11 +3,11 @@ package pages
 import (
 	"net/http"
 
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
-	"github.com/hypercodehq/hypercode/views/components/layouts"
-	"github.com/hypercodehq/hypercode/views/components/ui"
+	html "github.com/hypercodehq/libhtml"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/hypercommit/views/components/layouts"
+	"github.com/hypercommithq/hypercommit/views/components/ui"
+	"github.com/hypercommithq/libhtml/attr"
 )
 
 type OrganizationProfileData struct {
@@ -41,7 +41,7 @@ func OrganizationProfile(r *http.Request, data *OrganizationProfileData) html.No
 	}
 
 	return layouts.Profile(r,
-		data.Organization.DisplayName+" - Hypercode",
+		data.Organization.DisplayName+" - Hypercommit",
 		layouts.ProfileLayoutOptions{
 			Username:     data.Organization.Username,
 			DisplayName:  data.Organization.DisplayName,

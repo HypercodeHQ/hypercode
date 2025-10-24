@@ -13,12 +13,12 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/hypercode/database/repositories"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/hypercommit/database/repositories"
 )
 
 const (
-	CookieNameUserID = "hypercode_user_id"
+	CookieNameUserID = "hypercommit_user_id"
 )
 
 type AuthService interface {

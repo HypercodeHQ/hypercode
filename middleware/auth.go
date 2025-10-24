@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/hypercode/services"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/hypercommit/services"
 )
 
 type contextKey string
