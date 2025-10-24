@@ -1,13 +1,12 @@
 package components
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
 	"github.com/hypercodehq/hypercode/views/components/ui"
+	html "github.com/hypercodehq/libhtml"
+	"github.com/hypercodehq/libhtml/attr"
 )
 
 type HeaderData struct {
@@ -282,7 +281,6 @@ type MainHeaderData struct {
 }
 
 func MainHeader(data *MainHeaderData) html.Node {
-	fmt.Println("there!", data.Class)
 	return Header(&HeaderData{User: data.User}, html.A(
 		attr.Class("btn-ghost "+data.Class),
 		attr.Href("/explore/repositories"),
