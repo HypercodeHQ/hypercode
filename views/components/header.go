@@ -3,10 +3,10 @@ package components
 import (
 	"strings"
 
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/hypercode/views/components/ui"
-	html "github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/hypercommit/views/components/ui"
+	html "github.com/hypercommithq/libhtml"
+	"github.com/hypercommithq/libhtml/attr"
 )
 
 type HeaderData struct {
@@ -28,7 +28,7 @@ func Header(data *HeaderData, children ...html.Node) html.Node {
 				attr.DataSide("bottom"),
 				html.Img(
 					attr.Src("/logo.png"),
-					attr.Alt("Hypercode"),
+					attr.Alt("Hypercommit"),
 					attr.Class("h-7"),
 				),
 			),
@@ -57,7 +57,7 @@ func socialLinks() html.Node {
 	return html.Div(
 		attr.Class("flex flex-wrap items-center gap-2"),
 		html.A(
-			attr.Href("https://x.com/hypercode2099"),
+			attr.Href("https://x.com/hypercommit2099"),
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Follow us on X"),
@@ -67,7 +67,7 @@ func socialLinks() html.Node {
 			ui.SVGIcon(ui.IconTwitter, ""),
 		),
 		html.A(
-			attr.Href("https://discord.gg/edDhNEvRv7"),
+			attr.Href("https://discord.gg/9ntvVASRKf"),
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Join our Discord"),
@@ -77,7 +77,7 @@ func socialLinks() html.Node {
 			ui.SVGIcon(ui.IconDiscord, ""),
 		),
 		html.A(
-			attr.Href("https://bsky.app/profile/hypercode.ovh"),
+			attr.Href("https://bsky.app/profile/hypercommit.ovh"),
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Follow us on Bluesky"),
@@ -87,7 +87,7 @@ func socialLinks() html.Node {
 			ui.SVGIcon(ui.IconBluesky, ""),
 		),
 		html.A(
-			attr.Href("https://github.com/hypercodehq/hypercode"),
+			attr.Href("https://github.com/hypercommithq/hypercommit"),
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Star us on GitHub"),
@@ -216,7 +216,7 @@ func userAccountDropdown(user *models.User) html.Node {
 					),
 					html.Hr(attr.Role("separator")),
 					html.A(
-						attr.Href("https://x.com/hypercode2099"),
+						attr.Href("https://x.com/hypercommit2099"),
 						attr.Target("_blank"),
 						attr.Rel("noopener noreferrer"),
 						attr.Role("menuitem"),
@@ -225,7 +225,7 @@ func userAccountDropdown(user *models.User) html.Node {
 						html.Text("Follow us on X"),
 					),
 					html.A(
-						attr.Href("https://discord.gg/edDhNEvRv7"),
+						attr.Href("https://discord.gg/9ntvVASRKf"),
 						attr.Target("_blank"),
 						attr.Rel("noopener noreferrer"),
 						attr.Role("menuitem"),
@@ -234,7 +234,7 @@ func userAccountDropdown(user *models.User) html.Node {
 						html.Text("Join our Discord"),
 					),
 					html.A(
-						attr.Href("https://bsky.app/profile/hypercode.ovh"),
+						attr.Href("https://bsky.app/profile/hypercommit.ovh"),
 						attr.Target("_blank"),
 						attr.Rel("noopener noreferrer"),
 						attr.Role("menuitem"),
@@ -243,7 +243,7 @@ func userAccountDropdown(user *models.User) html.Node {
 						html.Text("Follow us on Bluesky"),
 					),
 					html.A(
-						attr.Href("https://github.com/hypercodehq/hypercode"),
+						attr.Href("https://github.com/hypercommithq/hypercommit"),
 						attr.Target("_blank"),
 						attr.Rel("noopener noreferrer"),
 						attr.Role("menuitem"),

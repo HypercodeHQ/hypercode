@@ -1,5 +1,5 @@
 {
-  "name": "hypercode",
+  "name": "hypercommit",
   "module": "index.ts",
   "type": "module",
   "private": true,

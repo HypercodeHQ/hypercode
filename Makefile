@@ -20,11 +20,11 @@ build-css: ## Build and minify CSS from Tailwind
 	@mkdir -p public/assets
 	bunx @tailwindcss/cli -i ./views/styles/main.css -o ./public/assets/styles.css
 
-build: build-css ## Build production binary to bin/hypercode
-	@echo "building hypercode binary with embedded assets..."
+build: build-css ## Build production binary to bin/hypercommit
+	@echo "building hypercommit binary with embedded assets..."
 	@mkdir -p bin
-	@CGO_ENABLED=1 go build -ldflags="-s -w" -o bin/hypercode ./cmd/server
-	@echo "binary built successfully at bin/hypercode"
+	@CGO_ENABLED=1 go build -ldflags="-s -w" -o bin/hypercommit ./cmd/server
+	@echo "binary built successfully at bin/hypercommit"
 
 dev: ## Start development server with hot-reloading
 	@command -v air >/dev/null 2>&1 || { echo "Air is not installed. Run 'make install-air' first."; exit 1; }
@@ -34,5 +34,5 @@ clean: ## Clean build artifacts and temporary files
 	go clean
 	rm -rf bin/
 	rm -rf tmp/
-	rm -f hypercode.db
+	rm -f hypercommit.db
 	rm -f build-errors.log

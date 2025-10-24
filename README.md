@@ -1,4 +1,4 @@
-# Hypercode
+# Hypercommit
 
 > An open-source alternative to GitHub
 
