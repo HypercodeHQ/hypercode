@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
-	"github.com/hypercodehq/hypercode/views/components/ui"
+	"github.com/hypercommithq/libhtml"
+	"github.com/hypercommithq/libhtml/attr"
+	"github.com/hypercommithq/hypercommit/views/components/ui"
 )
 
 type RepositoryActionsDropdownData struct {

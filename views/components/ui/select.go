@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
+	"github.com/hypercommithq/libhtml"
+	"github.com/hypercommithq/libhtml/attr"
 )
 
 type SelectOption struct {

@@ -1,7 +1,7 @@
 package ui
 
 import (
-	html "github.com/hypercodehq/libhtml"
+	html "github.com/hypercommithq/libhtml"
 	"github.com/hypercommithq/libhtml/attr"
 )
 

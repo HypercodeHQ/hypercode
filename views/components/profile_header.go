@@ -1,10 +1,10 @@
 package components
 
 import (
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
-	"github.com/hypercodehq/hypercode/views/components/ui"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/libhtml"
+	"github.com/hypercommithq/libhtml/attr"
+	"github.com/hypercommithq/hypercommit/views/components/ui"
 )
 
 type ProfileHeaderData struct {

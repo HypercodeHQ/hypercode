@@ -50,8 +50,10 @@ github.com/google/pprof v0.0.0-20250317173921-a4b03ec1a45e h1:ijClszYn+mADRFY17k
 github.com/google/pprof v0.0.0-20250317173921-a4b03ec1a45e/go.mod h1:boTsfXsheKC2y+lKOCMpSfarhxDeIzfZG1jqGcPl3cA=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/hypercommithq/libhtml v0.1.0 h1:8FWFhZxk1PuLt/Kp0jrgNj1h4vUX3pWBDOl05+a4KNc=
-github.com/hypercommithq/libhtml v0.1.0/go.mod h1:ntrZQhhARiTarpNpOESP/z7993VeYS9srTj+oeyxKNQ=
+github.com/hypercodehq/libhtml v0.1.0 h1:8FWFhZxk1PuLt/Kp0jrgNj1h4vUX3pWBDOl05+a4KNc=
+github.com/hypercodehq/libhtml v0.1.0/go.mod h1:ntrZQhhARiTarpNpOESP/z7993VeYS9srTj+oeyxKNQ=
+github.com/hypercommithq/libhtml v0.1.1 h1:ewZMYjFNRe5cgmE4q/v/QcHxYAxALNNl6UfUVg33gn4=
+github.com/hypercommithq/libhtml v0.1.1/go.mod h1:fWa598NyW9YRvffXeVgdFYX3Kc9TzBJ7E7HSgitP5T0=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=

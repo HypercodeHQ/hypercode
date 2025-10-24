@@ -3,13 +3,13 @@ package layouts
 import (
 	"net/http"
 
-	"github.com/hypercodehq/hypercode/database/models"
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
-	"github.com/hypercodehq/hypercode/middleware"
-	"github.com/hypercodehq/hypercode/services"
-	"github.com/hypercodehq/hypercode/views/components"
-	"github.com/hypercodehq/hypercode/views/components/ui"
+	"github.com/hypercommithq/hypercommit/database/models"
+	"github.com/hypercommithq/libhtml"
+	"github.com/hypercommithq/libhtml/attr"
+	"github.com/hypercommithq/hypercommit/middleware"
+	"github.com/hypercommithq/hypercommit/services"
+	"github.com/hypercommithq/hypercommit/views/components"
+	"github.com/hypercommithq/hypercommit/views/components/ui"
 )
 
 type exploreLayout struct {

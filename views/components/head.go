@@ -1,8 +1,8 @@
 package components
 
 import (
-	"github.com/hypercodehq/libhtml"
-	"github.com/hypercodehq/libhtml/attr"
+	"github.com/hypercommithq/libhtml"
+	"github.com/hypercommithq/libhtml/attr"
 )
 
 func Head(title string) html.Node {

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	html "github.com/hypercodehq/libhtml"
+	html "github.com/hypercommithq/libhtml"
 	"github.com/hypercommithq/hypercommit/database/models"
 	"github.com/hypercommithq/hypercommit/services"
 	"github.com/hypercommithq/hypercommit/views/components/layouts"

@@ -3,7 +3,7 @@ package pages
 import (
 	"net/http"
 
-	html "github.com/hypercodehq/libhtml"
+	html "github.com/hypercommithq/libhtml"
 	"github.com/hypercommithq/hypercommit/views/components/layouts"
 	"github.com/hypercommithq/hypercommit/views/components/ui"
 	"github.com/hypercommithq/libhtml/attr"
