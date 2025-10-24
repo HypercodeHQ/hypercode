@@ -3,10 +3,10 @@ package components
 import (
 	"strings"
 
-	"github.com/hypercommithq/hypercommit/database/models"
-	"github.com/hypercommithq/hypercommit/views/components/ui"
-	html "github.com/hypercommithq/libhtml"
-	"github.com/hypercommithq/libhtml/attr"
+	"github.com/hypercodehq/hypercode/database/models"
+	"github.com/hypercodehq/hypercode/views/components/ui"
+	html "github.com/hypercodehq/libhtml"
+	"github.com/hypercodehq/libhtml/attr"
 )
 
 type HeaderData struct {
