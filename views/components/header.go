@@ -77,7 +77,7 @@ func socialLinks() html.Node {
 			ui.SVGIcon(ui.IconDiscord, ""),
 		),
 		html.A(
-			attr.Href("https://bsky.app/profile/hypercommit.ovh"),
+			attr.Href("https://bsky.app/profile/hypercommit.com"),
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Follow us on Bluesky"),
@@ -234,7 +234,7 @@ func userAccountDropdown(user *models.User) html.Node {
 						html.Text("Join our Discord"),
 					),
 					html.A(
-						attr.Href("https://bsky.app/profile/hypercommit.ovh"),
+						attr.Href("https://bsky.app/profile/hypercommit.com"),
 						attr.Target("_blank"),
 						attr.Rel("noopener noreferrer"),
 						attr.Role("menuitem"),
