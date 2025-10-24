@@ -383,10 +383,8 @@ func (c *repositoriesController) Tree(w http.ResponseWriter, r *http.Request) er
 		branches = []string{}
 	}
 
-	// If no ref specified, use default branch
+	// If no ref specified, use default branch (or first available branch if default doesn't exist)
 	if ref == "" {
-		ref = repo.DefaultBranch
-		// If no branches exist, redirect will be handled by the view
 		if len(branches) == 0 {
 			// Empty repository
 			data := &pages.RepositoryTreeData{
@@ -404,6 +402,26 @@ func (c *repositoriesController) Tree(w http.ResponseWriter, r *http.Request) er
 			}
 			return pages.RepositoryTree(r, data).Render(w, r)
 		}
+
+		// Validate that default branch exists, otherwise use first available branch
+		ref = repo.DefaultBranch
+		defaultBranchExists := false
+		for _, branch := range branches {
+			if branch == repo.DefaultBranch {
+				defaultBranchExists = true
+				break
+			}
+		}
+
+		if !defaultBranchExists {
+			ref = branches[0]
+			slog.Warn("default branch not found when no ref specified, using first available branch",
+				"owner", owner,
+				"repo", repoName,
+				"defaultBranch", repo.DefaultBranch,
+				"actualBranches", branches,
+				"using", ref)
+		}
 	}
 
 	// Validate that ref exists in branches
@@ -416,13 +434,39 @@ func (c *repositoriesController) Tree(w http.ResponseWriter, r *http.Request) er
 	}
 
 	if !refExists && len(branches) > 0 {
-		// Redirect to default branch
-		redirectPath := fmt.Sprintf("/%s/%s/tree/%s", owner, repoName, repo.DefaultBranch)
-		if treePath != "" {
-			redirectPath = fmt.Sprintf("/%s/%s/tree/%s/%s", owner, repoName, repo.DefaultBranch, treePath)
+		// Find a valid branch to redirect to
+		targetBranch := ""
+
+		// First, check if the default branch exists
+		defaultBranchExists := false
+		for _, branch := range branches {
+			if branch == repo.DefaultBranch {
+				defaultBranchExists = true
+				targetBranch = repo.DefaultBranch
+				break
+			}
 		}
-		http.Redirect(w, r, redirectPath, http.StatusSeeOther)
-		return nil
+
+		// If default branch doesn't exist, use the first available branch
+		if !defaultBranchExists {
+			targetBranch = branches[0]
+			slog.Warn("default branch not found in git repository, using first available branch",
+				"owner", owner,
+				"repo", repoName,
+				"defaultBranch", repo.DefaultBranch,
+				"actualBranches", branches,
+				"using", targetBranch)
+		}
+
+		// Prevent infinite redirect: don't redirect if we're already on the target branch
+		if targetBranch != ref {
+			redirectPath := fmt.Sprintf("/%s/%s/tree/%s", owner, repoName, targetBranch)
+			if treePath != "" {
+				redirectPath = fmt.Sprintf("/%s/%s/tree/%s/%s", owner, repoName, targetBranch, treePath)
+			}
+			http.Redirect(w, r, redirectPath, http.StatusSeeOther)
+			return nil
+		}
 	}
 
 	// Check if treePath points to a file or directory
