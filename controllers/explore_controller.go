@@ -44,7 +44,7 @@ func NewExploreController(
 func (c *exploreController) Repositories(w http.ResponseWriter, r *http.Request) error {
 	currentUser := custommiddleware.GetUserFromContext(r)
 
-	allRepos, err := c.repos.FindAll()
+	allRepos, err := c.repos.FindPublic()
 	if err != nil {
 		slog.Error("failed to fetch all repositories", "error", err)
 		allRepos = []*models.Repository{}
