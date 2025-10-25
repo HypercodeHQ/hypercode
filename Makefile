@@ -18,7 +18,7 @@ install-air: ## Install Air for hot-reloading during development
 
 build-css: ## Build and minify CSS from Tailwind
 	@mkdir -p public/assets
-	bunx @tailwindcss/cli -i ./views/styles/main.css -o ./public/assets/styles.css
+	bun run css:build
 
 build: build-css ## Build production binary to bin/hypercommit
 	@echo "building hypercommit binary with embedded assets..."
