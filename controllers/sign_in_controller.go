@@ -56,7 +56,7 @@ func (c *signInController) Handle(w http.ResponseWriter, r *http.Request) error 
 		}).Render(w, r)
 	}
 
-	c.authService.SetUserCookie(w, user.ID)
+	c.authService.SetUserCookie(w, r, user.ID)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	return nil

@@ -9,6 +9,7 @@ import (
 
 	"github.com/hypercommithq/hypercommit/database/repositories"
 	"github.com/hypercommithq/hypercommit/httperror"
+	"github.com/hypercommithq/hypercommit/httputil"
 	"github.com/hypercommithq/hypercommit/services"
 )
 
@@ -45,7 +46,7 @@ func (c *githubAuthController) Login(w http.ResponseWriter, r *http.Request) err
 		Value:    state,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   httputil.IsHTTPS(r),
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   600, // 10 minutes
 	})
@@ -133,7 +134,7 @@ func (c *githubAuthController) Callback(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Set user cookie
-	c.authService.SetUserCookie(w, user.ID)
+	c.authService.SetUserCookie(w, r, user.ID)
 
 	// Redirect to home page
 	http.Redirect(w, r, "/", http.StatusSeeOther)

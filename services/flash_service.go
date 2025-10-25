@@ -2,6 +2,8 @@ package services
 
 import (
 	"net/http"
+
+	"github.com/hypercommithq/hypercommit/httputil"
 )
 
 const (
@@ -22,7 +24,7 @@ type FlashMessage struct {
 }
 
 type FlashService interface {
-	Set(w http.ResponseWriter, flashType FlashType)
+	Set(w http.ResponseWriter, r *http.Request, flashType FlashType)
 	Get(r *http.Request) *FlashMessage
 	Clear(w http.ResponseWriter)
 }
@@ -33,13 +35,13 @@ func NewFlashService() FlashService {
 	return &flashService{}
 }
 
-func (s *flashService) Set(w http.ResponseWriter, flashType FlashType) {
+func (s *flashService) Set(w http.ResponseWriter, r *http.Request, flashType FlashType) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     CookieNameFlash,
 		Value:    string(flashType),
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   httputil.IsHTTPS(r),
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   10,
 	})

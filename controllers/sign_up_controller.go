@@ -106,8 +106,8 @@ func (c *signUpController) Handle(w http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 
-	c.authService.SetUserCookie(w, user.ID)
-	c.flashService.Set(w, services.FlashCelebration)
+	c.authService.SetUserCookie(w, r, user.ID)
+	c.flashService.Set(w, r, services.FlashCelebration)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	return nil

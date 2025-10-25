@@ -57,7 +57,7 @@ func socialLinks() html.Node {
 	return html.Div(
 		attr.Class("flex flex-wrap items-center gap-2"),
 		html.A(
-			attr.Href("https://x.com/hypercommit2099"),
+			attr.Href("https://x.com/hypercommit"),
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Follow us on X"),
@@ -67,7 +67,7 @@ func socialLinks() html.Node {
 			ui.SVGIcon(ui.IconTwitter, ""),
 		),
 		html.A(
-			attr.Href("https://discord.gg/9ntvVASRKf"),
+			attr.Href("https://discord.gg/7EuMmyrM"),
 			attr.Target("_blank"),
 			attr.Rel("noopener noreferrer"),
 			attr.AriaLabel("Join our Discord"),
@@ -225,7 +225,7 @@ func userAccountDropdown(user *models.User) html.Node {
 						html.Text("Follow us on X"),
 					),
 					html.A(
-						attr.Href("https://discord.gg/9ntvVASRKf"),
+						attr.Href("https://discord.gg/7EuMmyrM"),
 						attr.Target("_blank"),
 						attr.Rel("noopener noreferrer"),
 						attr.Role("menuitem"),

@@ -15,6 +15,7 @@ import (
 
 	"github.com/hypercommithq/hypercommit/database/models"
 	"github.com/hypercommithq/hypercommit/database/repositories"
+	"github.com/hypercommithq/hypercommit/httputil"
 )
 
 const (
@@ -24,7 +25,7 @@ const (
 type AuthService interface {
 	HashPassword(password string) (string, error)
 	CheckPassword(password, hash string) bool
-	SetUserCookie(w http.ResponseWriter, userID int64)
+	SetUserCookie(w http.ResponseWriter, r *http.Request, userID int64)
 	GetUserFromCookie(r *http.Request) (*models.User, error)
 	ClearUserCookie(w http.ResponseWriter)
 }
@@ -96,14 +97,14 @@ func (s *authService) verifyCookieValue(signedValue string) (int64, error) {
 	return userID, nil
 }
 
-func (s *authService) SetUserCookie(w http.ResponseWriter, userID int64) {
+func (s *authService) SetUserCookie(w http.ResponseWriter, r *http.Request, userID int64) {
 	signedValue := s.signCookieValue(userID)
 	http.SetCookie(w, &http.Cookie{
 		Name:     CookieNameUserID,
 		Value:    signedValue,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   httputil.IsHTTPS(r),
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   86400 * 365,
 	})
